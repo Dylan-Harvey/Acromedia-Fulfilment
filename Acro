@@ -43,10 +43,6 @@ function Shipments_content() {
   return '<h2>'.t('Shipments info').'</h2>';
 }
 
-function commerce_order_build_content($order, $view_mode = 'administrator') {
-  return entity_get_controller('commerce_order')->view(array($order->order_id => $order), $view_mode);
-}
-
 function hook_admin_paths() {
   $paths = array(
     'Acro/*/add' => TRUE, 
@@ -64,7 +60,3 @@ function hook_overlay_paths() {
   );
   return $paths;
 }
-
-
-
-
