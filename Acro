@@ -1,0 +1,70 @@
+<?php
+
+function Acro_menu() {
+  $items = array();
+
+
+  $items['admin/Acro'] = array(
+      'title' => t('Acro'),
+      'description' => t('A custom menu'),
+      'page callback' => t('Orders_content'),
+      'type' => MENU_NORMAL_ITEM,
+      'access callback' => true,
+      'weight' => 50
+  );
+
+
+  $items['admin/Acro/Orders'] = array(
+      'title' => t('Orders'),
+      'description' => t('Orders tab'),
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => 0
+  );
+
+
+  $items['admin/Acro/Shipments'] = array(
+      'title' => t('Shipments'),
+      'description' => t('Shipments tab'),
+      'page callback' => t('Shipments_content'),
+      'type' => MENU_LOCAL_TASK,
+      'access callback' => true,
+      'weight' => 1
+  );
+
+
+  return $items;
+}
+
+function Orders_content() {
+  return '<h2>'.t('Orders info').'</h2>';
+}
+
+function Shipments_content() {
+  return '<h2>'.t('Shipments info').'</h2>';
+}
+
+function commerce_order_build_content($order, $view_mode = 'administrator') {
+  return entity_get_controller('commerce_order')->view(array($order->order_id => $order), $view_mode);
+}
+
+function hook_admin_paths() {
+  $paths = array(
+    'Acro/*/add' => TRUE, 
+    'Acro/*/edit' => TRUE,
+  );
+  return $paths;
+}
+
+function hook_overlay_paths() {
+  $paths = array(
+    'Acro/*/add' => TRUE,
+    'Acro/*/edit' => array(
+      'width' => 500,
+    ),
+  );
+  return $paths;
+}
+
+
+
+
