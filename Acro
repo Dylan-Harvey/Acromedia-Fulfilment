@@ -1,9 +1,15 @@
 <?php
-
+/**
+ * @return array
+ * Implements hook hook_menu()
+ *
+ */
 function Acro_menu() {
   $items = array();
 
-
+    /**
+     * Implements Acro tab on the admin menu
+     */
   $items['admin/Acro'] = array(
       'title' => t('Acro'),
       'description' => t('A custom menu'),
@@ -12,16 +18,18 @@ function Acro_menu() {
       'access callback' => true,
       'weight' => 50
   );
-
-
+    /**
+     * Implements Orders link in the Acro module menu
+     */
   $items['admin/Acro/Orders'] = array(
       'title' => t('Orders'),
       'description' => t('Orders tab'),
       'type' => MENU_DEFAULT_LOCAL_TASK,
       'weight' => 0
   );
-
-
+    /**
+     * Implements shipping link in the Acro module menu
+     */
   $items['admin/Acro/Shipments'] = array(
       'title' => t('Shipments'),
       'description' => t('Shipments tab'),
@@ -30,23 +38,46 @@ function Acro_menu() {
       'access callback' => true,
       'weight' => 1
   );
-
-
+    /**
+     * Not complete
+     * Attempt at referencing Commerce orders.
+     * Currently allows to receive a blank page when the url localhost/Commerce/Acro/(any active order id) is entered
+     */
+  $items['admin/Acro/Orders/%commerce_order'] = array(
+     'title' => 'Edit',
+     'page callback' => 'commerce_order_ui_order_form_wrapper',
+     'page arguments' => array(3),
+     'access callback' => 'commerce_order_access',
+     'access arguments' => array('update', 3),
+     'type' => MENU_LOCAL_TASK,
+     'weight' => -5,
+     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+     'file' => 'includes/commerce_order_ui.orders.inc',
+   );
   return $items;
 }
 
+/**
+ * @return string
+ * Implements page when order tab is clicked
+ */
 function Orders_content() {
-  return '<h2>'.t('Orders info').'</h2>';
+	return '<h2>'.t('Orders info').'</h2>';
 }
 
+/**
+ * @return string
+ * Implements page when shipment tab is clicked
+ */
 function Shipments_content() {
   return '<h2>'.t('Shipments info').'</h2>';
 }
 
-function commerce_order_build_content($order, $view_mode = 'administrator') {
-  return entity_get_controller('commerce_order')->view(array($order->order_id => $order), $view_mode);
-}
-
+/**
+ * @return array
+ * implements hook hook_admin_paths
+ * Allows the Acro tab to be placed in the admin menu
+ */
 function hook_admin_paths() {
   $paths = array(
     'Acro/*/add' => TRUE, 
@@ -55,6 +86,11 @@ function hook_admin_paths() {
   return $paths;
 }
 
+/**
+ * @return array
+ * Implements hook hook_overlay_paths
+ * Allows a page overlay to be opened once the Acro tab is clicked
+ */
 function hook_overlay_paths() {
   $paths = array(
     'Acro/*/add' => TRUE,
@@ -64,7 +100,5 @@ function hook_overlay_paths() {
   );
   return $paths;
 }
-
-
 
 
