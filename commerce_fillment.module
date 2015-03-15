@@ -27,9 +27,9 @@ function commerce_fulfillment_menu() {
     $items['admin/manage-orders/%commerce_order/orders'] = array(
         'title' => 'Edit',
         'page callback' => 'orders_content',
-        'page arguments' => array(3),
+        'page arguments' => array(2),
         'access callback' => 'commerce_order_access',
-        'access arguments' => array('update', 3),
+        'access arguments' => array('update', 2),
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'weight' => -7,
         'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -58,11 +58,9 @@ function commerce_fulfillment_menu() {
  * Builds the package page.
  */
 function orders_content($order_id) {
-    dpm($order_id);
     $order = commerce_order_load($order_id);
-
+    dpm($order);
     $output = 'Hello World';
-
     return $output;
 }
 
