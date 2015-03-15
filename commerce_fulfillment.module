@@ -57,12 +57,13 @@ function commerce_fulfillment_menu() {
  *
  * Builds the package page.
  */
-function Orders_content($order) {
-    $order_id = $order->order_id;
+function orders_content($order_id) {
 
-    dpm($order);
+    $order = commerce_order_load($order_id);
 
-    $output = 'hello world';
+    dpm($order, $name = NULL);
+
+    $output = 'Hello World';
 
     return $output;
 }
