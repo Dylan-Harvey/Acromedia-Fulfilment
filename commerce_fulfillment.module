@@ -1,0 +1,106 @@
+<?php
+/**
+ * @return array
+ *
+ * implements hook hook_menu()
+ * builds the menu tabs for the site, both in the admin bar and in the page overlay.
+ *
+ */
+function commerce_fulfillment_menu() {
+    $items = array();
+
+    /**
+     * Creates the commerce fulfillment link
+     */
+    $items['admin/commerce/manage-orders/commerce_fulfillment'] = array(
+        'title' => t('commerce_fulfillment'),
+        'description' => t('A custom menu'),
+        'page callback' => 'Orders_content',
+        'type' => MENU_NORMAL_ITEM,
+        'access callback' => true,
+        'weight' => 50
+    );
+
+    /**
+     * creates link to the package page
+     */
+    $items['admin/manage-orders/%commerce_order/orders'] = array(
+        'title' => 'Edit',
+        'page callback' => 'orders_content',
+        'page arguments' => array(3),
+        'access callback' => 'commerce_order_access',
+        'access arguments' => array('update', 3),
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'weight' => -7,
+        'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    );
+
+    /**
+     * Creates link to the shipment page.
+     */
+    $items['admin/commerce/manage-orders/commerce_fulfillment/Shipments'] = array(
+        'title' => t('Shipments'),
+        'description' => t('Shipments tab'),
+        'page callback' => 'Shipments_content',
+        'type' => MENU_LOCAL_TASK,
+        'access callback' => true,
+        'weight' => 1
+    );
+
+
+    return $items;
+}
+
+/**
+ * @param $order
+ * @return string
+ *
+ * Builds the package page.
+ */
+function Orders_content($order) {
+    $order_id = $order->order_id;
+
+    dpm($order);
+
+    $output = 'hello world';
+
+    return $output;
+}
+
+/**
+ * @return string
+ *
+ * Builds the shipments page
+ *
+ */
+function Shipments_content() {
+    return '<h2>'.t('Shipments info').'</h2>';
+}
+
+/**
+ * @return array
+ * implements hook hook_admin_paths()
+ * allows us to us the admin bar.
+ */
+function commerce_fulfillment_admin_paths() {
+    $paths = array(
+        'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfillment/*/edit' => TRUE,
+    );
+    return $paths;
+}
+
+/**
+ * @return array
+ * implement hook hook_overlay_paths()
+ *
+ */
+function commerce_fulfillment_overlay_paths() {
+    $paths = array(
+        'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfillment/*/edit' => array(
+            'width' => 500,
+        ),
+    );
+    return $paths;
+}
