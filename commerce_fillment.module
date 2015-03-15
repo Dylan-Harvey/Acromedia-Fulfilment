@@ -10,7 +10,7 @@ function commerce_fulfilment_menu() {
     $items = array();
 
     /**
-     * Creates the commerce fulfillment link
+     * Creates the commerce fulfilment link
      */
     $items['admin/commerce/manage-orders/commerce_fulfilment'] = array(
         'title' => t('commerce_fulfilment'),
@@ -38,7 +38,7 @@ function commerce_fulfilment_menu() {
     /**
      * Creates link to the shipment page.
      */
-    $items['admin/commerce/manage-orders/commerce_fulfillment/shipments'] = array(
+    $items['admin/commerce/manage-orders/commerce_fulfilment/shipments'] = array(
         'title' => t('Shipments'),
         'description' => t('Shipments tab'),
         'page callback' => 'shipments_content',
