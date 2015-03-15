@@ -1,0 +1,7 @@
+name = commerce_fulfillment
+description = A eCommerce add-on module to assist with the shipping process.
+core = 7.x
+package = Core
+
+; NEW LINE
+configure = admin/config/content/commerce_fulfillment
