@@ -6,14 +6,14 @@
  * builds the menu tabs for the site, both in the admin bar and in the page overlay.
  *
  */
-function commerce_fulfillment_menu() {
+function commerce_fulfilment_menu() {
     $items = array();
 
     /**
      * Creates the commerce fulfillment link
      */
-    $items['admin/commerce/manage-orders/commerce_fulfillment'] = array(
-        'title' => t('commerce_fulfillment'),
+    $items['admin/commerce/manage-orders/commerce_fulfilment'] = array(
+        'title' => t('commerce_fulfilment'),
         'description' => t('A custom menu'),
         'page callback' => 'orders_content',
         'type' => MENU_NORMAL_ITEM,
@@ -38,10 +38,10 @@ function commerce_fulfillment_menu() {
     /**
      * Creates link to the shipment page.
      */
-    $items['admin/commerce/manage-orders/commerce_fulfillment/Shipments'] = array(
+    $items['admin/commerce/manage-orders/commerce_fulfillment/shipments'] = array(
         'title' => t('Shipments'),
         'description' => t('Shipments tab'),
-        'page callback' => 'Shipments_content',
+        'page callback' => 'shipments_content',
         'type' => MENU_LOCAL_TASK,
         'access callback' => true,
         'weight' => 1
@@ -69,7 +69,7 @@ function orders_content($order) {
  * Builds the shipments page
  *
  */
-function Shipments_content() {
+function shipments_content() {
     return '<h2>'.t('Shipments info').'</h2>';
 }
 
@@ -78,10 +78,10 @@ function Shipments_content() {
  * implements hook hook_admin_paths()
  * allows us to us the admin bar.
  */
-function commerce_fulfillment_admin_paths() {
+function commerce_fulfilment_admin_paths() {
     $paths = array(
-        'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE,
-        'commerce/manage-orders/commerce_fulfillment/*/edit' => TRUE,
+        'commerce/manage-orders/commerce_fulfilment/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfilment/*/edit' => TRUE,
     );
     return $paths;
 }
@@ -91,10 +91,10 @@ function commerce_fulfillment_admin_paths() {
  * implement hook hook_overlay_paths()
  *
  */
-function commerce_fulfillment_overlay_paths() {
+function commerce_fulfilment_overlay_paths() {
     $paths = array(
-        'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE,
-        'commerce/manage-orders/commerce_fulfillment/*/edit' => array(
+        'commerce/manage-orders/commerce_fulfilment/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfilment/*/edit' => array(
             'width' => 500,
         ),
     );
