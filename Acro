@@ -1,31 +1,34 @@
 <?php
-
-function Acro_menu() {
+function commerce_fulfillment_menu() {
   $items = array();
 
 
-  $items['admin/Acro'] = array(
-      'title' => t('Acro'),
+  $items['admin/commerce/manage-orders/commerce_fulfillment'] = array(
+      'title' => t('commerce_fulfillment'),
       'description' => t('A custom menu'),
-      'page callback' => t('Orders_content'),
+      'page callback' => 'Orders_content',
       'type' => MENU_NORMAL_ITEM,
       'access callback' => true,
       'weight' => 50
   );
 
 
-  $items['admin/Acro/Orders'] = array(
-      'title' => t('Orders'),
-      'description' => t('Orders tab'),
-      'type' => MENU_DEFAULT_LOCAL_TASK,
-      'weight' => 0
-  );
+  $items['admin/commerce/manage-orders/%commerce_fulfillment/Orders'] = array(
+     'title' => 'Edit',
+     'page callback' => 'Orders_content',
+     'page arguments' => array(3),
+     'access callback' => 'Orders_access',
+     'access arguments' => array('update', 3),
+     'type' => MENU_DEFAULT_LOCAL_TASK,
+     'weight' => -7,
+     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+   );
 
 
-  $items['admin/Acro/Shipments'] = array(
+  $items['admin/commerce/manage-orders/commerce_fulfillment/Shipments'] = array(
       'title' => t('Shipments'),
       'description' => t('Shipments tab'),
-      'page callback' => t('Shipments_content'),
+      'page callback' => 'Shipments_content',
       'type' => MENU_LOCAL_TASK,
       'access callback' => true,
       'weight' => 1
@@ -36,25 +39,33 @@ function Acro_menu() {
 }
 
 function Orders_content() {
-  return '<h2>'.t('Orders info').'</h2>';
+ // return '<h2>'.t('Orders info').'</h2>';
+ $order_id = $order->order_id;
+  
+  dpm($order);
+
+  $output = 'hello world';
+  
+  return $output;
 }
 
 function Shipments_content() {
   return '<h2>'.t('Shipments info').'</h2>';
 }
 
+
 function hook_admin_paths() {
   $paths = array(
-    'Acro/*/add' => TRUE, 
-    'Acro/*/edit' => TRUE,
+    'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE, 
+    'commerce/manage-orders/commerce_fulfillment/*/edit' => TRUE,
   );
   return $paths;
 }
 
 function hook_overlay_paths() {
   $paths = array(
-    'Acro/*/add' => TRUE,
-    'Acro/*/edit' => array(
+    'commerce/manage-orders/commerce_fulfillment/*/add' => TRUE,
+    'commerce/manage-orders/commerce_fulfillment/*/edit' => array(
       'width' => 500,
     ),
   );
