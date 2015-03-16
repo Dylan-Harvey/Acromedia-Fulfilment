@@ -56,10 +56,16 @@ function commerce_fulfilment_menu() {
  * @return string
  *
  * Builds the package page.
+ * Pulls in Order info and displays the name of the products in Order 4.
  */
 function orders_content($order) {
     dpm($order);
-    $output = 'Hello World';
+    $line_id = $order->commerce_line_items[und];
+    dpm($line_id);
+    $products = commerce_product_load_multiple($line_id);
+    dpm($products);
+
+    $output = '<h2>'.t('Products in order:').'</h2><p>'.$products[11]->sku.'</p><p>'.$products[12]->sku.'</p>';
     return $output;
 }
 
@@ -72,7 +78,82 @@ function orders_content($order) {
 function shipments_content() {
     return '<h2>'.t('Shipments info').'</h2>';
 }
+/**
+ *
+ * @return array
+ * Implements hook_form
+ * Creates an admin page form
+ * Will use this data to print packing slips and shipping labels
+ */
+function commerce_fulfilment_admin_form(){
+    $form = array();
+    $form['title'] = array(
+        '#markup' => '<h2>Admin Page</h2>'
+    );
+    /**
+     * Creates seperate information fields
+     */
+    $form['Company Information']=array(
+        '#type'=>'fieldset',
+        '#title'=>t("Enter your company's information below"),
+        '#description'=>'Enter information to use on Packing Slips and Shipping Labels.'
+    );
+    /**
+     * Textfields
+     */
+    $form['Company Information']['company'] = array(
+        '#type'=>'textfield',
+        '#title'=>t('Company name:'),
+    );
+    $form['Company Information']['address'] = array(
+        '#type'=>'textfield',
+        '#title'=>t('Address:')
+    );
+    $form['Company Information']['phone'] = array(
+        '#type'=>'textfield',
+        '#title'=>t('Company Phone Number:')
+    );
+    /**
+     * Allows user to upload company logo
+     */
+    $form['#attributes']['enctype'] = 'multipart/form-data';
 
+    $form['Company Information']['logo']=array(
+        '#type'=>'file',
+        '#title'=>t('Upload your company logo:'),
+    );
+    /**
+     * Submit button
+     */
+    $form['submit']=array(
+        '#type'=>'submit',
+        '#value'=>t('Submit')
+    );
+    return $form;
+}
+/**
+ * Implements hook hook_form_validate
+ * Validates information entered into the form
+ */
+function commerce_fulfilment_admin_form_validate($form, $form_state){
+    if(empty($form_state['values']['company']))
+        form_set_error('company','Company cannot be empty');
+    if(empty($form_state['values']['address']))
+        form_set_error('address','Address cannot be empty');
+    if(empty($form_state['values']['phone']))
+        form_set_error('phone','Phone cannot be empty');
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ *
+ * Allows the form to submit its information and display a message.
+ *
+ */
+function commerce_fulfilment_admin_form_submit($form, $form_state){
+    drupal_set_message('Form has been submitted');
+}
 /**
  * @return array
  * implements hook hook_admin_paths()
