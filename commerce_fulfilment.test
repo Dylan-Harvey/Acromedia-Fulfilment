@@ -1,0 +1,114 @@
+<?php
+/***********************************************************************************
+ * This file is part of Comerce Fulfilment. A drupal module used to fulfil         *
+ * orders placed in the Drupal Commerce module.                                    *
+ *                                                                                 *
+ * Authors: Dylan Harvey, Evan Schisler, Levi Weir, Parker Groenewoud              *
+ *                                                                                 *
+ * Project for COSC224 - Projects in Computer Science at Okanagan College.         *
+ * Sponsored by AcroMedia                                                          *
+ *                                                                                 *
+ *                                                                                 *
+ * Version: 1.0 - 12/03/15 - (Code before header)                                  *                                               *
+ *          1.1 - 26/03/15 - (Code after header)                                   *
+ *                                                                                 *
+ * Originially from: http://choosealicense.com/licenses/mit/                       *
+ * The MIT License (MIT)                                                           *
+ *                                                                                 *
+ *                                                                                 *
+ *                                                                                 *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy    *
+ * of this software and associated documentation files (the "Software"), to deal   *
+ * in the Software without restriction, including without limitation the rights    *
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell       *
+ * copies of the Software, and to permit persons to whom the Software is           *
+ * furnished to do so, subject to the following conditions:                        *
+ *                                                                                 *
+ * The above copyright notice and this permission notice shall be included in all  *
+ * copies or substantial portions of the Software.                                 *
+ *                                                                                 *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,        *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE     *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER          *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,   *
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
+ * SOFTWARE.                                                                       *
+ **********************************************************************************/
+/*
+ * Tests the functionality of the Simpletest example content type.
+ */
+class SimpletestExampleTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+public static function getInfo() {
+    // Note: getInfo() strings are not translated with t().
+    return array(
+      'name' => 'commerce_fulfillment_test1',
+      'description' => 'Ensure that the commerce_fulfillment modules provided functions properly.',
+      'group' => 'Commerce Fufillment Tests',
+    );
+  }
+
+public function setUp() {
+    // Enable any modules required for the test. This should be an array of
+    // module names.
+    parent::setUp(array('simpletest_example','commerce_fulfillment'));
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'create simpletest_example content',
+      'extra special edit any simpletest_example',
+      ));
+    $this->drupalLogin($this->privileged_user);
+  }
+	
+public function testcommerce_fulfillment_menu(){
+$items = array();
+
+    /**
+     * Creates the commerce fulfillment link
+     */
+    $items['admin/commerce/manage-orders/commerce_fulfillment'] = array(
+        'title' => 'Commerce Fulfillment',
+        'access arguments'=>array('access content'),
+        'page callback' => 'drupal_get_form',
+        'page arguments'=>array('commerce_fulfillment_landing_form'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 50
+    );
+    $items['admin/commerce/manage-orders/commerce_fulfillment/admin'] = array(
+        'title'=> 'Admin Options',
+        'access arguments'=>array('access content'),
+        'page callback' => 'drupal_get_form',
+        'page arguments'=>array('commerce_fulfillment_admin_form'),
+    );
+    /**
+     * creates link to the package page
+     */
+    $items['admin/commerce/manage-orders/%commerce_order/orders'] = array(
+        'title' => 'Edit',
+        'page callback' => 'orders_content',
+        'page arguments' => array(3),
+        'access callback' => 'commerce_order_access',
+        'access arguments' => array('update', 3),
+        'type' => MENU_DEFAULT_LOCAL_TASK,
+        'weight' => -7,
+        'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    );
+
+    /**
+     * Creates link to the shipment page.
+     */
+    $items['admin/commerce/manage-orders/commerce_fulfillment/shipments'] = array(
+        'title' => t('Shipments'),
+        'description' => t('Shipments tab'),
+        'page callback' => 'shipments_content',
+        'type' => MENU_LOCAL_TASK,
+        'access callback' => true,
+        'weight' => 1
+    );
+    return $items;
+}
+
+}
+?>
