@@ -295,3 +295,32 @@ function commerce_fulfilment_overlay_paths() {
     );
     return $paths;
 }
+
+
+//Implements hook_entity_info()
+function package_entity_info(){
+$info = array();
+
+$info['package'] = array(
+	'label' => t('package'),
+	'base_table' => 'commerce_fulfillment_packages',
+	'entity keys' => array(
+		'package_id' => 'package_id',
+	),
+);
+return $info;
+}
+
+//Implements hook_entity_info()
+function shipment_entity_info(){
+$info = array();
+
+$info['package'] = array(
+	'label' => t('shipment'),
+	'base_table' => 'commerce_fulfillment_shipments',
+	'entity keys' => array(
+		'shipment_id' => 'shipment_id',
+	),
+);
+return $info;
+}
