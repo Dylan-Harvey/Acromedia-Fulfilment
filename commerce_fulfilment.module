@@ -61,16 +61,18 @@ function commerce_fulfilment_menu() {
         'access arguments'=>array('access content'),
         'page callback' => 'drupal_get_form',
         'page arguments'=>array('commerce_fulfilment_admin_form'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 50
     );
     /**
      * creates link to the package page
      */
-    $items['admin/commerce/manage-orders/%commerce_order/orders'] = array(
+    $items['admin/commerce/manage-orders/commerce_fulfilment/%commerce_order/orders'] = array(
         'title' => 'Edit',
         'page callback' => 'orders_content',
-        'page arguments' => array(3),
+        'page arguments' => array(4),
         'access callback' => 'commerce_order_access',
-        'access arguments' => array('update', 3),
+        'access arguments' => array('update', 4),
         'type' => MENU_DEFAULT_LOCAL_TASK,
         'weight' => -7,
         'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
@@ -87,11 +89,21 @@ function commerce_fulfilment_menu() {
         'access callback' => true,
         'weight' => 1
     );
+    $items['admin/commerce/manage-orders/commerce_fulfilment/commerce_fulfilment_create_package_form'] = array(
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('commerce_fulfilment_create_package_form')
+    );
 
 
     return $items;
 }
-
+function commerce_fulfilment_menus_menu_link_alter(&$items) {
+    if (isset($items['admin/commerce/manage-orders/commerce_fulfilment'])) {
+        $items['admin/commerce/manage-orders/commerce_fulfilment']['parent'] = 'admin/commerce/manage-orders/commerce_fulfilment/admin';
+        $items['admin/commerce/manage-orders/commerce_fulfilment']['title'] = 'Admin Page';
+        $items['admin/commerce/manage-orders/commerce_fulfilment']['type'] = MENU_NORMAL_ITEM;
+    }
+}
 /**
  * @param $order
  * @return string
@@ -101,19 +113,62 @@ function commerce_fulfilment_menu() {
  *
  */
 function orders_content($order) {
-
+        $form_name = 'commerce_fulfilment_create_package_form';
+        $order_num = $order->order_number;
         dpm($order);
-        $line_id = $order->commerce_line_items[und];
+        $line_id = $order->commerce_line_items['und'];
         dpm($line_id);
         $products = commerce_product_load_multiple($line_id);
         dpm($products);
         $output = '<h2>' . t('Products in order:') . '</h2>';
-    foreach($products as $product){
-        $output .= '<p>'.$product->sku.'</p>';
-    }
+        foreach($products as $product){
+            $output .= '<p>'.$product->sku.'</p>';
+        }
+        $query = new EntityFieldQuery();
+        $query->fieldCondition('body', 'value', $order_num);
+        $result=$query->execute();
+        if(isset($result['node'])) {
+            $packages_nid = array_keys($result['node']);
+            $packages = entity_load('node', $packages_nid);
+            foreach ($packages as $package) {
+                $output .= '<p>' . $package->package_id . '</p>';
+            }
+        }
+        $output .= drupal_render(drupal_get_form($form_name,$order_num));
         return $output;
 }
 
+/**
+ * implements hook_form
+ */
+function commerce_fulfilment_create_package_form($order_id){
+    $form = array();
+    $form['order_id'] = array(
+      '#type' => 'hidden',
+        '#value' => $order_id,
+    );
+    $form['box_type'] = array(
+        '#type' => 'select',
+        '#title' => 'Select box type: ',
+        '#options' => array('large', 'medium', 'small', 'tiny')
+    );
+    $form['create'] = array(
+        '#type' => 'submit',
+        '#value' => t('Create a Package')
+    );
+    return $form;
+}
+/**
+ * implements hook_form_submit()
+ */
+function commerce_fulfilment_create_package_form_submit($form, $form_state){
+    $entity_type = 'package';
+    $entity = entity_create($entity_type, array());
+    $entity->order_id=$form_state['values']['order_id'];
+    $entity->box_type = $form_state['values']['box_type'];
+    $entity->save();
+
+}
 /**
  * @return string
  *
@@ -190,7 +245,7 @@ function commerce_fulfilment_landing_form_validate($form, &$form_state){
  */
 function commerce_fulfilment_landing_form_submit($form,&$form_state){
     $argument = commerce_fulfilment_get_array((int)$form_state['values']['select']);
-    $form_state['redirect'] = 'admin/commerce/manage-orders/' .$argument.'/orders';
+    $form_state['redirect'] = 'admin/commerce/manage-orders/commerce_fulfilment/' .$argument.'/orders';
 }
 /**
  *
@@ -278,6 +333,10 @@ function commerce_fulfilment_admin_paths() {
         'commerce/manage-orders/commerce_fulfilment/*/add' => TRUE,
         'commerce/manage-orders/commerce_fulfilment/*/edit' => TRUE,
     );
+    $paths = array(
+        'commerce/manage-orders/commerce_fulfilment/admin/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfilment/admin/*/edit' => TRUE,
+    );
     return $paths;
 }
 
@@ -293,34 +352,34 @@ function commerce_fulfilment_overlay_paths() {
             'width' => 500,
         ),
     );
+    $paths = array(
+        'commerce/manage-orders/commerce_fulfilment/admin/*/add' => TRUE,
+        'commerce/manage-orders/commerce_fulfilment/admin/*/edit' => array(
+            'width' => 500,
+        ),
+    );
     return $paths;
 }
-
-
-//Implements hook_entity_info()
-function package_entity_info(){
-$info = array();
-
-$info['package'] = array(
-	'label' => t('package'),
-	'base_table' => 'commerce_fulfillment_packages',
-	'entity keys' => array(
-		'package_id' => 'package_id',
-	),
-);
-return $info;
-}
-
-//Implements hook_entity_info()
-function shipment_entity_info(){
-$info = array();
-
-$info['package'] = array(
-	'label' => t('shipment'),
-	'base_table' => 'commerce_fulfillment_shipments',
-	'entity keys' => array(
-		'shipment_id' => 'shipment_id',
-	),
-);
-return $info;
+/**
+ * Implements hook_entity_info()
+ */
+/////////////////Package Entity////////////////
+function commerce_fulfilment_entity_info(){
+    $info = array();
+    $info['package'] = array(
+        'label' => t('package'),
+        'base table' => 'commerce_fulfilment_packages',
+        'entity keys' => array(
+            'id' => 'id'
+        ),
+        'module'=>'commerce_fulfilment'
+    );
+    $info['shipment'] = array(
+        'label' => t('shipment'),
+        'base_table' => 'commerce_fulfilment_shipments',
+        'entity keys' => array(
+            'shipment_id' => 'shipment_id',
+        ),
+    );
+    return $info;
 }
