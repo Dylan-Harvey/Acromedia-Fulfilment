@@ -117,7 +117,9 @@ function commerce_fulfilment_menus_menu_link_alter(&$items) {
  *
  */
 function orders_content($order) {
+  //@TODO this isn't really helpful as a variable, i'd just pass the string directly below
   $form_name = 'commerce_fulfilment_create_package_form';
+  //@TODO i think you want order_id not order_number
   $order_num = $order->order_number;
 
   dpm($order);
@@ -131,7 +133,10 @@ function orders_content($order) {
     $output .= '<p>' . $product->sku . '</p>';
   }
 
+  //@TODO you are loading a node here and I believe you want to be loading a package entity instead, you'll need to specify the entity type
+  // link to decent tutorial -> https://www.drupal.org/node/1343708
   $query = new EntityFieldQuery();
+  //@TODO i don't think you want body here, i assume you want order_id?
   $query->fieldCondition('body', 'value', $order_num);
   $result = $query->execute();
   if (isset($result['node'])) {
@@ -187,6 +192,8 @@ function commerce_fulfilment_create_package_form_submit($form, $form_state){
  * Builds the shipments page
  *
  */
+//@TODO you want to name all functions modulename_whatever or _modulename_whatever if it is internal only
+//something better would be commerce_fulfilment_shipments_page
 function shipments_content() {
   return '<h2>' . t('Shipments info') . '</h2>';
 }
@@ -358,6 +365,7 @@ function commerce_fulfilment_admin_paths() {
     'commerce/manage-orders/commerce_fulfilment/admin/*/add' => TRUE,
     'commerce/manage-orders/commerce_fulfilment/admin/*/edit' => TRUE,
   );
+
   return $paths;
 }
 
@@ -380,6 +388,7 @@ function commerce_fulfilment_overlay_paths() {
       'width' => 500,
     ),
   );
+
   return $paths;
 }
 
@@ -389,6 +398,8 @@ function commerce_fulfilment_overlay_paths() {
 /////////////////Package Entity////////////////
 function commerce_fulfilment_entity_info(){
   $info = array();
+
+  //@TODO id doesn't match the schema, which is package_id
   $info['package'] = array(
     'label' => t('package'),
     'base table' => 'commerce_fulfilment_packages',
@@ -397,6 +408,7 @@ function commerce_fulfilment_entity_info(){
     ),
     'module' => 'commerce_fulfilment'
   );
+
   $info['shipment'] = array(
     'label' => t('shipment'),
     'base_table' => 'commerce_fulfilment_shipments',
@@ -404,5 +416,6 @@ function commerce_fulfilment_entity_info(){
       'shipment_id' => 'shipment_id',
     ),
   );
+
   return $info;
 }
