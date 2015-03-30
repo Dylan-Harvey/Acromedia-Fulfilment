@@ -389,6 +389,10 @@ function commerce_fulfilment_overlay_paths() {
   return $paths;
 }
 
+function commerce_fulfilment_views_api() {
+  return array('api' => 3.0);
+}
+
 /**
  * Implements hook_entity_info()
  */
