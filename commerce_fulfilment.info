@@ -1,5 +1,5 @@
 /***********************************************************************************
- * This file is part of Comerce Fulfilment. A drupal module used to fulfil         *
+ * This file is part of Commerce Fulfilment. A drupal module used to fulfil         *
  * orders placed in the Drupal Commerce module.                                    *
  *                                                                                 *
  * Authors: Dylan Harvey, Evan Schisler, Levi Weir, Parker Groenewoud              *
@@ -38,8 +38,10 @@
  *Code needed to give Drupal the necesarry information about the module.
 */
 name = Commerce Fulfilment
-description = A eCommerce add-on module to assist with the shipping process.
+//@TODO I changed the wording of this slightly
+description = A Drupal Commerce module to assist with the shipping process.
 core = 7.x
+//@TODO i'd change this from Core to Commerce or something, also you should add the commerce dependancies you have
 package = Core
 files[] = commerce_fulfilment.test
 testing_api = 2.x
