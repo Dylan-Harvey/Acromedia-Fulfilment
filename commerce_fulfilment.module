@@ -208,9 +208,8 @@ function commerce_fulfilment_get_array($index = FALSE) {
   dpm($orders);
   $order_id = array();
   $count = 0;
-  /**
-   * Creates an array of order id's for the select box.
-   */
+
+  //Creates an array of order id's for the select box.
   foreach ($orders as $order) {
     $order_id[$count] = $order->order_number;
     $count++;
@@ -219,6 +218,7 @@ function commerce_fulfilment_get_array($index = FALSE) {
   if ($index !== FALSE && is_int($index) && $index <= count($order_id)) {
     return $order_id[$index];
   }
+
   return $order_id;
 }
 
@@ -281,17 +281,15 @@ function commerce_fulfilment_admin_form(){
   $form['title'] = array(
     '#markup' => '<h2>Admin Page</h2>'
   );
-  /**
-   * Creates separate information fields
-   */
+
+  //Creates separate information fields
   $form['Company Information'] = array(
     '#type' => 'fieldset',
     '#title' => t("Enter your company's information below"),
     '#description' => 'Enter information to use on Packing Slips and Shipping Labels.'
   );
-  /**
-   * Textfields
-   */
+
+  //Textfields
   $form['Company Information']['company'] = array(
     '#type' => 'textfield',
     '#title' => t('Company name:'),
@@ -304,22 +302,21 @@ function commerce_fulfilment_admin_form(){
     '#type' => 'textfield',
     '#title' => t('Company Phone Number:')
   );
-  /**
-   * Allows user to upload company logo
-   */
+
+  //Allows user to upload company logo
   $form['#attributes']['enctype'] = 'multipart/form-data';
 
   $form['Company Information']['logo'] = array(
     '#type' => 'file',
     '#title' => t('Upload your company logo:'),
   );
-  /**
-   * Submit button
-   */
+
+  //Submit button
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit')
   );
+
   return $form;
 }
 
