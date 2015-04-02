@@ -35,6 +35,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
  * SOFTWARE.                                                                       *
  **********************************************************************************/
+/**
+* Creates and sets default view for module
+*/
 function commerce_fulfilment_default_views() {
   $files = file_scan_directory(drupal_get_path('module', 'custom_module'). '/views', '/.view/');
   foreach ($files as $filepath => $file) {
