@@ -65,64 +65,66 @@ function commerce_fulfilment_schema() {
                 'type' => 'blob',
                 'serialize' => TRUE,
                 'not null' => FALSE,
-	        ),
-	        'box_type' => array(
+            ),
+            'box_type' => array(
                 'type' => 'varchar',
                 'length' => '255',
                 'not null' => FALSE,
             ),
-	        'shipping_info' => array(
+            'shipping_info' => array(
                 'type' => 'blob',
                 'serialize'=> TRUE,
                 'not null' => TRUE,
             ),
         ),
-            'primary key' => array('package_id'),
-        );
+        'primary key' => array('package_id'),
+    );
     /**
      * shipment entity
      */
-        $schema['commerce_fulfilment_shipments'] = array(
-            'description' => 'The base table for the Shipment entity',
-            'fields' => array(
-                'shipment_id' => array(
-                    'description' => 'Primary key of the Shipment entity',
-                    'type' => 'serial',
-                    'unsigned' => TRUE,
-                    'not null' => TRUE,
-                ),
-                'status' => array(
-                    'description' => 'Status of the shipment("Pending" or "Completed")',
-                    'type' => 'varchar',
-                    'length' => 255,
-                    'not null' => TRUE,
-                ),
-                'packages' => array(
-                    'description' => 'An array of the packages in the shipment.',
-                    'type' => 'blob',
-                    'serialize' => TRUE,
-                    'not null' => FALSE,
-                ),
-                'date' => array(
-                    'description' => 'Date the shipment was shipped',
-                    'type' => 'int',
-                    'length' => 8,
-                    'not null' => FALSE,
-                ),
-                'method' => array(
-                    'description' => 'Shipping Method chosen',
-                    'type' => 'varchar',
-                    'length' => 255,
-                    'not null' => FALSE,
-                ),
-                'tracking_number' => array(
-                    'description' => 'Tracking number for the shipments',
-                    'type' => 'varchar',
-                    'length' => 255,
-                    'not null' => FALSE,
-                ),
+    $schema['commerce_fulfilment_shipments'] = array(
+        'description' => 'The base table for the Shipment entity',
+        'fields' => array(
+            'shipment_id' => array(
+                'description' => 'Primary key of the Shipment entity',
+                'type' => 'serial',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
             ),
-            'primary key' => array('shipment_id'),
-        );
-          return $schema;
-        }
+            'order_num' => array(
+                'type' => 'blob',
+                'not null'=> TRUE,
+            ),
+            'status' => array(
+                'description' => 'Status of the shipment("Pending" or "Completed")',
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => TRUE,
+            ),
+            'package_num' => array(
+                'description' => 'An array of the packages in the shipment.',
+                'type' => 'blob',
+                'serialize' => TRUE,
+                'not null' => FALSE,
+            ),
+            'dates' => array (
+                'type' => 'blob',
+                'serialize' => TRUE,
+                'not null' => FALSE,
+            ),
+            'method' => array (
+                'type' => 'blob',
+                'serialize' => TRUE,
+                'not null' => FALSE,
+            ),
+            'tracking_number' => array(
+                'description' => 'Tracking number for the shipments',
+                'type' => 'varchar',
+                'length' => 255,
+                'not null' => FALSE,
+            ),
+        ),
+        'primary key' => array('shipment_id'),
+    );
+    return $schema;
+}
