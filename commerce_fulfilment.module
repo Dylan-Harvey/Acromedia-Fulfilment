@@ -18,6 +18,7 @@
  *          1.6 - 09/04/15 - Added implementation for shipments.                   *
  *          1.7 - 09/04/15 - Added ability to remove products and packages         *
  *                              and delete packages and shipment                   *
+ *	    1.8 - 10/04/15 - Implemented view for orders in packages page	   *
  * Originially from: http://choosealicense.com/licenses/mit/                       *
  * The MIT License (MIT)                                                           *
  *                                                                                 *
@@ -126,9 +127,9 @@ function commerce_fulfilment_package_content($order)
     $order_id = $order->order_id;
     //dpm($order);
     $line_id = $order->commerce_line_items['und'];
-    //dpm($line_id);
-    $products = commerce_product_load_multiple($line_id);
-    //dpm($products);
+    dpm($line_id);
+    $products = commerce_line_item_load_multiple($line_id);
+    dpm($products);
     $packages = entity_load($type, FALSE, array('order_id'=>$order_id));
     //dpm($packages);
     $output = '<table><tr><td style = vertical-align:top>';
@@ -140,9 +141,9 @@ function commerce_fulfilment_package_content($order)
         $output .= '<h3>Package ' . $package_id . ':</h3>';
         $output .= '<h4>Products in Package:</h4>';
         $line_items = $package->line_items;
-        $line_items = commerce_product_load_multiple($line_items['und']);
+        $line_items = commerce_line_item_load_multiple($line_items['und']);
         foreach($line_items as $lineitem){
-            $output .= '<p><strong>Product ID: </strong>' . $lineitem->product_id . '</p><p><strong>Product Code: </strong>' . $lineitem->sku . '</p>';
+            $output .= '<p><strong>Product ID: </strong>' . $lineitem->line_item_id . '</p><p><strong>Product Code: </strong>' . $lineitem->line_item_label . '</p>';
         }
         $output .= drupal_render(drupal_get_form('commerce_fulfilment_add_product_form_' . $package_id, array('0' => $package, '1' => $order)));
     }
@@ -290,7 +291,7 @@ function commerce_fulfilment_get_product_array($order, $index = FALSE)
     $line_id = array();
     $count = 0;
     /**
-     * Creates an array of order id's for the select box.
+     * Creates an array of order product id's for the select box.
      */
     foreach ($line_ids as $id) {
         $line_id[$count] = $id['line_item_id'];
@@ -354,9 +355,9 @@ function commerce_fulfilment_shipment_content($order) {
         $output .= '<h3>Package ' . $package_id . ':</h3>';
         $output .= '<h4>Products in Package:</h4>';
         $line_items = $package->line_items;
-        $line_items = commerce_product_load_multiple($line_items['und']);
+        $line_items = commerce_line_item_load_multiple($line_items['und']);
         foreach ($line_items as $lineitem) {
-            $output .= '<p><strong>Product ID: </strong>' .$lineitem->product_id . '</p><p><strong>Product Code: </strong>' . $lineitem->sku . '</p>';
+            $output .= '<p><strong>Product ID: </strong>' .$lineitem->line_item_id . '</p><p><strong>Product Code: </strong>' . $lineitem->line_item_label . '</p>';
         }
     }
     $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
