@@ -162,7 +162,8 @@ function commerce_fulfilment_package_content($order)
  *
  */
 function commerce_fulfilment_create_package_form($form, &$form_state,$order){
-    dpm($order);
+    //dpm($order);
+    
     $form = array();
     $form['order'] = array(
         '#type' => 'hidden',
@@ -174,11 +175,12 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order){
     $form['box_type'] = array(
         '#type' => 'select',
         '#title' => 'Select box type: ',
-        '#options' => array('large', 'medium', 'small', 'tiny')
+        '#options' => array(variable_get("commerce_fulfilment_boxtype")),
+	'#default_value' => 'default',
     );
     $form['create'] = array(
         '#type' => 'submit',
-        '#value' => t('Create Package')
+        '#value' => t('Create a Package')
     );
     return $form;
 }
@@ -539,6 +541,10 @@ function commerce_fulfilment_admin_form(){
         '#type'=>'textfield',
         '#title'=>t('Company Phone Number:')
     );
+    $form['Company Information']['commerce_fulfilment_boxtype'] = array(
+        '#type'=>'textfield',
+        '#title'=>t('Add box size:'),
+    );
     /**
      * Allows user to upload company logo
      */
@@ -548,14 +554,7 @@ function commerce_fulfilment_admin_form(){
         '#type'=>'file',
         '#title'=>t('Upload your company logo:'),
     );
-    /**
-     * Submit button
-     */
-    $form['submit']=array(
-        '#type'=>'submit',
-        '#value'=>t('Submit')
-    );
-    return $form;
+    return system_settings_form($form);
 }
 /**
  * Implements hook hook_form_validate
@@ -568,6 +567,21 @@ function commerce_fulfilment_admin_form_validate($form, &$form_state){
         form_set_error('address','Address cannot be empty');
     if(empty($form_state['values']['phone']))
         form_set_error('phone','Phone cannot be empty');
+
+    variable_set('commerce_fulfilment_boxtype', 
+	 $form['commerce_fulfilment_boxtype']);
+
+	variable_set('commerce_fulfilment_phone', 
+	 $form['phone']);
+
+	variable_set('commerce_fulfilment_address', 
+	 $form['address']);
+
+	variable_set('commerce_fulfilment_company', 
+	 $form['company']);
+
+	variable_set('commerce_fulfilment_logo', 
+	 $form['logo']);
 }
 
 /**
