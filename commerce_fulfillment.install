@@ -1,18 +1,18 @@
 <?php
 /***********************************************************************************
- * This file is part of Comerce Fulfilment. A drupal module used to fulfil         *
+ * This file is part of Commerce Fulfilment. A drupal module used to fulfil         *
  * orders placed in the Drupal Commerce module.                                    *
  *                                                                                 *
  * Authors: Dylan Harvey, Evan Schisler, Levi Weir, Parker Groenewoud              *
  *                                                                                 *
  * Project for COSC224 - Projects in Computer Science at Okanagan College.         *
- * Sponsored by AcroMedia                                                          *
+ * Sponsored by Acro Media                                                          *
  *                                                                                 *
  *                                                                                 *
  * Version: 1.0 - 12/03/15 - (Code before header)                                  *
  *          1.1 - 26/03/15 - (Code after header)                                   *
  *          1.2 - 08/04/15 - (Added additional fields to the shipment entity.)     *
- * Originially from: http://choosealicense.com/licenses/mit/                       *
+ * Originally from: http://choosealicense.com/licenses/mit/                       *
  * The MIT License (MIT)                                                           *
  *                                                                                 *
  *                                                                                 *
@@ -35,6 +35,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
  * SOFTWARE.                                                                       *
  **********************************************************************************/
+
 /**
  * @return array
  * implement hook_schema()
@@ -42,89 +43,87 @@
  *
  */
 function commerce_fulfilment_schema() {
+  $schema = array();
 
-    $schema = array();
-    /**
-     * package entity
-     *
-     */
-    $schema['commerce_fulfilment_packages'] = array(
-        'description' => 'The base table for the package entity',
-        'fields' => array(
-            'package_id' => array(
-                'description' => 'Primary key of the package entity',
-                'type' => 'serial',
-                'unsigned' => TRUE,
-                'not null' => TRUE,
-            ),
-            'order_id' => array(
-                'type' => 'blob',
-                'not null'=> TRUE,
-            ),
-            'line_items' => array (
-                'type' => 'blob',
-                'serialize' => TRUE,
-                'not null' => FALSE,
-            ),
-            'box_type' => array(
-                'type' => 'varchar',
-                'length' => '255',
-                'not null' => FALSE,
-            ),
-            'shipping_info' => array(
-                'type' => 'blob',
-                'serialize'=> TRUE,
-                'not null' => TRUE,
-            ),
-        ),
-        'primary key' => array('package_id'),
-    );
-    /**
-     * shipment entity
-     */
-    $schema['commerce_fulfilment_shipments'] = array(
-        'description' => 'The base table for the Shipment entity',
-        'fields' => array(
-            'shipment_id' => array(
-                'description' => 'Primary key of the Shipment entity',
-                'type' => 'serial',
-                'unsigned' => TRUE,
-                'not null' => TRUE,
-            ),
-            'order_num' => array(
-                'type' => 'blob',
-                'not null'=> TRUE,
-            ),
-            'status' => array(
-                'description' => 'Status of the shipment("Pending" or "Completed")',
-                'type' => 'varchar',
-                'length' => 255,
-                'not null' => TRUE,
-            ),
-            'package_num' => array(
-                'description' => 'An array of the packages in the shipment.',
-                'type' => 'blob',
-                'serialize' => TRUE,
-                'not null' => FALSE,
-            ),
-            'dates' => array (
-                'type' => 'blob',
-                'serialize' => TRUE,
-                'not null' => FALSE,
-            ),
-            'method' => array (
-                'type' => 'blob',
-                'serialize' => TRUE,
-                'not null' => FALSE,
-            ),
-            'tracking_number' => array(
-                'description' => 'Tracking number for the shipments',
-                'type' => 'varchar',
-                'length' => 255,
-                'not null' => FALSE,
-            ),
-        ),
-        'primary key' => array('shipment_id'),
-    );
-    return $schema;
+  //@todo - not sure this comment is very helpful, it is pretty clear this is a package entity
+  //package entity
+  $schema['commerce_fulfilment_packages'] = array(
+    'description' => 'The base table for the package entity',
+    'fields' => array(
+      'package_id' => array(
+        'description' => 'Primary key of the package entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'order_id' => array(
+        'type' => 'blob',
+        'not null'=> TRUE,
+      ),
+      'line_items' => array (
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
+      'box_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+      'shipping_info' => array(
+        'type' => 'blob',
+        'serialize'=> TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('package_id'),
+  );
+
+  //shipment entity
+  $schema['commerce_fulfilment_shipments'] = array(
+    'description' => 'The base table for the Shipment entity',
+    'fields' => array(
+      'shipment_id' => array(
+        'description' => 'Primary key of the Shipment entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'order_num' => array(
+        'type' => 'blob',
+        'not null'=> TRUE,
+      ),
+      'status' => array(
+        'description' => 'Status of the shipment("Pending" or "Completed")',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'package_num' => array(
+        'description' => 'An array of the packages in the shipment.',
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
+      'dates' => array (
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
+      'method' => array (
+        'type' => 'blob',
+        'serialize' => TRUE,
+        'not null' => FALSE,
+      ),
+      'tracking_number' => array(
+        'description' => 'Tracking number for the shipments',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('shipment_id'),
+  );
+
+  return $schema;
 }
