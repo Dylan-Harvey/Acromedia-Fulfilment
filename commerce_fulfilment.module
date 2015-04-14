@@ -468,8 +468,6 @@ function commerce_fulfilment_add_package_form_submit(&$form, &$form_state){
     $arg = commerce_fulfilment_get_package_array($package_arr , $value);
     $package = $package_arr['und'][$arg];
     $package_ids = $shipment->package_num['und'];
-    $counting = count($package_ids);
-    $counting = $counting -1;
     $value = $package->package_id;
     if($form_state['values']['radios'] == 0 ) {
             $shipment->package_num['und'][] = $value;
@@ -477,8 +475,8 @@ function commerce_fulfilment_add_package_form_submit(&$form, &$form_state){
 
     }
     elseif($form_state['values']['radios'] == 1) {
-        dpm($counting);
-        for($counting = count($package_ids)-1; $counting>=0; $counting=$counting-1) {
+
+        for($counting = count($package_ids)-1; $counting>=0; $counting--) {
 
             if ($shipment->package_num['und'][$counting] == $value) {
                 $shipment->package_num['und'][$counting] = NULL;
