@@ -143,9 +143,9 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order){
     $form['title'] = array(
         '#markup'=>'<h2>Create a New Package:</h2>'
     );
-    $form['box_type'] = array(
+    $form['package_type'] = array(
         '#type' => 'select',
-        '#title' => 'Select box type: ',
+        '#title' => 'Select package type: ',
         '#options' => array(variable_get("commerce_fulfilment_boxtype")),
         '#default_value' => 'default',
     );
@@ -167,7 +167,7 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
     $shipping = commerce_customer_profile_load($order->commerce_customer_shipping['und'][0]);
     $entity = entity_create('package', array(
         'order_id' => $order->order_id,
-        'box_type' => $form_state['values']['box_type'],
+        'box_type' => $form_state['values']['package_type'],
         'shipping_info'=>array(
             'firstName' => substr($shipping->commerce_customer_address['und'][0]['first_name'], 0, 50),
             'lastName' => substr($shipping->commerce_customer_address['und'][0]['last_name'], 0, 50),
@@ -333,7 +333,7 @@ function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
     );
     $form['print'] = array(
         '#type' => 'submit',
-        '#value' => t('Print Shipping Label')
+        '#value' => t('Print Packing Slip')
     );
     return $form;
 }
@@ -365,7 +365,7 @@ function commerce_fulfilment_packing_slip_content($package_id){
         $count++;
     }
     $image = variable_get('logo');
-    $image_obj = file_load($image);
+    $image_obj = file_load_multiple($image);
     $image_obj_url = file_create_url($image_obj->uri);
     $output = '<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>';
     $output .= '<td width = "80%"><p></p><strong>Company Info.: <br></strong>'. variable_get('company') .'</p>' . variable_get('address') .
@@ -749,7 +749,7 @@ function commerce_fulfilment_admin_form(){
     );
     $form['Company Information']['commerce_fulfilment_boxtype'] = array(
         '#type'=>'textfield',
-        '#title'=>t('Add box size:'),
+        '#title'=>t('Add Package Type:'),
     );
     /**
      * Allows user to upload company logo
