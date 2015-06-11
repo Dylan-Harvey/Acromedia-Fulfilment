@@ -80,9 +80,10 @@ function commerce_fulfilment_menu() {
  * Also shows menu tabs for navigation.
  */
 function commerce_fulfilment_admin_content(){
-    $output = '';
-    $output .= drupal_render(drupal_get_form('commerce_fulfilment_admin_form'));
-    return $output;
+
+  $get_form = drupal_get_form('commerce_fulfilment_admin_form');
+  return drupal_render($get_form);
+
 }
 /**
  * @param $order
@@ -95,9 +96,8 @@ function commerce_fulfilment_admin_content(){
 function commerce_fulfilment_package_content($order)
 {
     $order_id = $order->order_id;
-    //dpm($order);
+//    dpm($order);
     $packages = entity_load('package', FALSE, array('order_id'=>$order_id));
-    //dpm($packages);
     $output = '<table><tr><td style = vertical-align:top>';
     $output .= '<h2>' . t('Products in Order ' .$order_id . ':') . '</h2>';
     $output .= views_embed_view('commerce_fulfilment_order', 'order_block', $order_id);
@@ -258,7 +258,7 @@ function commerce_fulfilment_get_product_array($order, $index = FALSE)
     $line_id = array();
     $count = 0;
     /**
-     * Creates an array of order id's for the select box.
+     * Creates an array of product id's for the select box.
      */
     foreach ($line_ids as $id) {
         $line_id[$count] = $id['line_item_id'];
@@ -294,8 +294,8 @@ function commerce_fulfilment_add_product_form_submit($form, &$form_state)
             if ($product == $argument) {
                 $package->line_items['und'][$count] = NULL;
                 $package->save('package', $package);
-                $count++;
             }
+          $count++;
         }
     }
     elseif($form_state['values']['radios']==2){
