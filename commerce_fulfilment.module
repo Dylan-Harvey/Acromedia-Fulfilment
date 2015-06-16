@@ -103,15 +103,22 @@ function commerce_fulfilment_package_content($order){
     $output .= views_embed_view('commerce_fulfilment_order', 'order_block', $order_id);
     $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
     foreach ($packages as $package) {
+        dpm($package);
+        $package_wrapper = entity_metadata_wrapper('package', $package);
         $output .= '<h3>Package ' . $package->package_id . ':</h3>';
         $output .= '<h4>Products in Package:</h4>';
-        $line_items = commerce_line_item_load_multiple($package->line_items['und']);
-        //dpm($line_items);
-        foreach($line_items as $line_item){
-            $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+        dpm($package_wrapper->line_items->value());
+        if($package_wrapper->line_items->value() !== NULL && $package_wrapper->line_items->value()!== FALSE) {
+            $line_items = commerce_line_item_load_multiple($package_wrapper->line_items->value());
+            //dpm($line_items);
+
+            foreach ($line_items as $line_item) {
+                $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+            }
         }
         $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package->package_id, array('0' => $package->package_id, '1' => $order->order_id));
         $output .= drupal_render($get_form);
+
     }
     $output.='</td></tr><tr>';
     $get_form = drupal_get_form('commerce_fulfilment_create_package_form', $order_id);
@@ -163,11 +170,11 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order_id){
  * implements hook_form_submit
  */
 function commerce_fulfilment_create_package_form_submit($form, &$form_state){
-
     //create an order entity wrapper
     $order_id = $form_state['values']['order_id'];
     $order = commerce_order_load($order_id);
     $order_wrapper= entity_metadata_wrapper('commerce_order', $order);
+
     //create a package entity wrapper
     $profile_id = $order_wrapper->commerce_customer_billing->profile_id->value();
     $profile = commerce_customer_profile_load($profile_id);
@@ -177,6 +184,9 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
     $entity = entity_create('package', array(
         'order_id' => $order_wrapper->order_id->value(),
         'box_type' => $form_state['values']['package_type'],
+        'line_items' => array(
+          'val' => array(),
+        ),
         'shipping_info'=>array(
             'firstName' => $profile_wrapper->commerce_customer_address->first_name->value(),
             'lastName' => $profile_wrapper->commerce_customer_address->last_name->value(),
@@ -188,10 +198,8 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
             'country' => $profile_wrapper->commerce_customer_address->country->value(),
         ),
     ));
-
     //insert entity into database
     $entity->save('package', $entity);
-
 }
 /**
  * @param $form_id
@@ -258,7 +266,7 @@ function commerce_fulfilment_add_product_form_builder($form, &$form_state, $args
 }
 /**
  * @param $order_id
- * @param $index
+ * @param $product
  *
  * @return array
  *
@@ -274,9 +282,8 @@ function commerce_fulfilment_get_product_array($order_id, $product = FALSE){
     foreach($order_wrapper->commerce_line_items->value() as $index => $line_item){
         $line_ids[] = $line_item->line_item_id;
     }
-
     if($product !== FALSE && is_int($product) && $product <= count($line_ids)) {
-        return $line_ids[$index];
+        return $line_ids[$product];
     }
     return $line_ids;
 }
@@ -287,33 +294,51 @@ function commerce_fulfilment_get_product_array($order_id, $product = FALSE){
  * Implements the functionality behind commerce_fulfilment_add_product_form
  *
  */
-function commerce_fulfilment_add_product_form_submit($form, &$form_state){
+function commerce_fulfilment_add_product_form_submit($form, &$form_state)
+{
 
-    $package_id = $form_state['values']['package_id'];
-    $package = entity_load('package', $package_id);
-    $package_wrapper = entity_metadata_wrapper('package', $package);
-
+    //loads an array of one package.
+    $package_id = array();
+    $package_id[0] = $form_state['values']['package_id'];
     $order_id = $form_state['values']['order_id'];
-    $order = commerce_order_load($order_id);
-
-    $products = $package_wrapper->line_items->value();
-    $argument = commerce_fulfilment_get_product_array($order, (int)$form_state['values']['product']);
-    if($form_state['values']['radios'] == 0) {
-        $package->line_items['und'][] = $argument;
-        $package->save('package', $package);
+    $package = entity_load('package', $package_id, array('order_id' => $order_id));
+    $package_wrapper = entity_metadata_wrapper('package', $package[$package_id[0]]);
+    $products = array();
+    if ($package_wrapper->line_items->value()!== NULL && $package_wrapper->line_items->value()!== FALSE) {
+        foreach ($package_wrapper->line_items->value() as $line_item) {
+            $products[] = $line_item;
+        }
     }
+    //grabs the product that the user selected
+    $argument = commerce_fulfilment_get_product_array($order_id, (int)$form_state['values']['product']);
+    dpm($argument);
+    //add product
+    if($form_state['values']['radios'] == 0) {
+        $reference = $package_wrapper->line_items->value();
+        $reference['val'][$argument] = $argument;
+//        $package_wrapper->line_items = array();
+        dpm($reference);
+        $package_wrapper->line_items->set($reference);
+        $package_wrapper->save();
+    }
+//            $package->line_items['val'][] = $argument;
+//            $package[$package_id[0]]->save('package', $package[$package_id[0]]);
+//        }
+    //remove product
     elseif($form_state['values']['radios'] == 1) {
         $count = 0;
         foreach ($products as $product) {
             if ($product == $argument) {
-                $package->line_items['und'][$count] = NULL;
-                $package->save('package', $package);
+                $package[$package_id[0]]->line_items['val'][$count] = NULL;
+                $package[$package_id[0]]->save('package', $package);
             }
           $count++;
         }
     }
+
+    //delete product
     elseif($form_state['values']['radios']==2){
-        $package->delete();
+        $package[$package_id[0]]->delete();
     }
 }
 
@@ -324,7 +349,7 @@ function commerce_fulfilment_add_product_form_submit($form, &$form_state){
  * @return array
  *
  * Implements hook_form
- * Shows form for printing packing slips
+ * Shows form for printing packing sliform_state['values']['package_array']ps
  */
 function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
     $package_arr['und'] = entity_load('package', FALSE, array('order_id' => $order_id));
@@ -332,10 +357,6 @@ function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
     $form['order_id'] = array(
         '#type' => 'hidden',
         '#value' => $order_id,
-    );
-    $form['package_array'] = array(
-        '#type' => 'hidden',
-        '#value' => $package_arr,
     );
     $form['title'] = array(
         '#markup'=>'<h2>Print Packing Slip:</h2>'
@@ -358,7 +379,8 @@ function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
  * redirects the user to the packing slip
  */
 function commerce_fulfilment_packing_slip_form_submit($form, &$form_state){
-    $argument = commerce_fulfilment_get_package_array($form_state['values']['package_array'], (int)$form_state['values']['package']);
+    $package_arr['und'] = entity_load('package', FALSE, array('order_id' => $form_state['values']['order_id']));
+    $argument = commerce_fulfilment_get_package_array($package_arr, (int)$form_state['values']['package']);
     $order_id = $form_state['values']['order_id'];
     $form_state['redirect'] = 'admin/commerce/orders/' . $order_id .'/commerce_fulfilment/' . $argument . '/packing_slip';
 }
