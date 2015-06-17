@@ -93,8 +93,8 @@ function commerce_fulfilment_admin_content(){
  *
  */
 function commerce_fulfilment_package_content($order){
-
-  $order_id = $order->order_id;
+  $order_wrapper = entity_metadata_wrapper( 'commerce_order', $order);
+  $order_id = $order_wrapper->order_id->value();
   //dpm($order);
   $packages = entity_load('package', FALSE, array('order_id'=>$order_id));
   //dpm($packages);
@@ -103,14 +103,17 @@ function commerce_fulfilment_package_content($order){
   $output .= views_embed_view('commerce_fulfilment_order', 'order_block', $order_id);
   $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
   foreach ($packages as $package) {
-    $output .= '<h3>Package ' . $package->package_id . ':</h3>';
+    $package_wrapper = entity_metadata_wrapper('package', $package);
+    $output .= '<h3>Package ' . $package_wrapper->package_id->value() . ':</h3>';
     $output .= '<h4>Products in Package:</h4>';
-    dpm($package);
-    $line_items = commerce_line_item_load_multiple($package->line_items['und']);
+    $line_items = array();
+    foreach($package_wrapper->commerce_fulfilment_line_items->value() as $line_item){
+      $line_items[] = $line_item;
+    }
     foreach ($line_items as $line_item) {
       $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
     }
-    $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package->package_id, array('0' => $package->package_id, '1' => $order->order_id));
+    $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package_wrapper->package_id->value(), array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
     $output .= drupal_render($get_form);
   }
   $output.='</td></tr><tr>';
@@ -392,9 +395,11 @@ function commerce_fulfilment_packing_slip_form_submit($form, &$form_state){
  */
 function commerce_fulfilment_packing_slip_content($package_id){
   $package_selected = entity_load('package', FALSE, array('package_id' => $package_id));
+  dpm($package_selected[$package_id]);
+  $package_wrapper = entity_metadata_wrapper('package', $package_selected[$package_id]);
   $order_id = $package_selected[$package_id]->order_id;
   $packages = entity_load('package', FALSE, array('order_id' => $order_id));
-  $products = commerce_line_item_load_multiple($package_selected[$package_id]->line_items['und']);
+  $products = $package_wrapper->commerce_fulfilment_line_items->value();
   $count = 0;
   foreach($packages as $package){
     $count++;
@@ -403,13 +408,15 @@ function commerce_fulfilment_packing_slip_content($package_id){
   $image_obj = file_load_multiple($image);
   $image_obj_url = file_create_url($image_obj->uri);
   $output = '<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>';
-  $output .= '<td width = "80%"><p></p><strong>Company Info.: <br></strong>'. variable_get('company') .'</p>' . variable_get('address') .
+  $output .= '<td width = "80%"><p></p><strong>Company Info.: <br></strong>'. variable_get('company', NULL) .'</p>' . variable_get('address', NULL) .
     '<br>' . variable_get('phone', NULL) . '</td></tr><tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
         <table cellpadding = "15" width = "700" >';
   $output .= '<th align = "left"> Product Code:</th><th align = "left"> Quantity</th><th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>';
   foreach($products as $product){
-    $prices[0] = $product->commerce_unit_price['und'][0]['amount'];
-    $prices[1] = $product->commerce_total['und'][0]['amount'];
+    dpm($product);
+    $product_wrapper = entity_metadata_wrapper('commerce_line_item', $product);
+    $prices[0] = $product_wrapper->commerce_unit_price->amount->value();
+    $prices[1] = $product_wrapper->commerce_total->amount->value();
 
     $length = strlen($prices[0]);
     $prices[0] = substr_replace($prices[0], '.', $length - 2, 0);
@@ -417,11 +424,11 @@ function commerce_fulfilment_packing_slip_content($package_id){
     $prices[1] = substr_replace($prices[1], '.', $length - 2, 0);
 
     $output .= '<tr><td>' . $product->line_item_label . '</td><td>' . $product->quantity .'</td><td>' .
-      $prices[0] . ' ' . $product->commerce_unit_price['und'][0]['currency_code'] . '</td><td>' . $prices[1] . ' '
-      . $product->commerce_total['und'][0]['currency_code'] . '</td></tr>';
+      $prices[0] . ' ' . $product_wrapper->commerce_unit_price->currency_code->value() . '</td><td>' . $prices[1] . ' '
+      . $product_wrapper->commerce_total->currency_code->value() . '</td></tr>';
   }
   $output .= '</table></td></tr>';
-  $output .= '<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_selected[$package_id]->package_id . '<br><strong>Package:</strong> 1 of ' . $count . '</td>';
+  $output .= '<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_wrapper->package_id->value() . '<br><strong>Package:</strong> 1 of ' . $count . '</td>';
   $output.= '</tr></table>';
   print $output;
 }
@@ -441,14 +448,20 @@ function commerce_fulfilment_shipment_content($order) {
   //dpm($packages);
   $output = '<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
   foreach ($packages as $package) {
-    $package_id = $package->package_id;
-    $packages_id[] = $package->package_id;
+    $package_wrapper = entity_metadata_wrapper('package', $package);
+    $package_id = $package_wrapper->package_id->value();
+    $packages_id[] = $package_wrapper->package_id->value();
     $output .= '<h3>Package ' . $package_id . ':</h3>';
     $output .= '<h4>Products in Package:</h4>';
-    $line_items = $package->line_items;
-    $line_items = commerce_line_item_load_multiple($line_items['und']);
+    $line_items = array();
+
+    foreach($package_wrapper->commerce_fulfilment_line_items->value() as $line_item){
+      $line_items[] = $line_item;
+    }
+
     foreach ($line_items as $line_item) {
-      $output .= '<p><strong>Product ID: </strong>' .$line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+      $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+      $output .= '<p><strong>Product ID: </strong>' .$line_item->line_item_id->value() . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label->value() . '</p>';
     }
   }
   $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
@@ -461,7 +474,7 @@ function commerce_fulfilment_shipment_content($order) {
       foreach ($package_ids as $package_id) {
         if ($package_id != NULL) {
           $package = entity_load('package', FALSE, array('package_id' => $package_id));
-          $output .= '<p><strong>Package ID: </strong>' . $package[$package_id]->package_id . '</p><p><strong>Shipping Info: </strong>' . $package[$package_id]->shipping_info['address'] . '</p>';
+          $output .= '<p><strong>Package ID: </strong>' . $package_wrapper->package_id->value() . '</p><p><strong>Shipping Info: </strong>' . $package[$package_id]->shipping_info['address'] . '</p>';
         }
       }
     }
