@@ -177,7 +177,7 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
   $entity = entity_create('package', array(
     'order_id' => $order_wrapper->order_id->value(),
     'box_type' => $form_state['values']['commerce_fulfilment_package_type'],
-    'shipping_info'=>array(
+    'shipping_info'=> array(
       'firstName' => $profile_wrapper->commerce_customer_address->first_name->value(),
       'lastName' => $profile_wrapper->commerce_customer_address->last_name->value(),
       'company' => $profile_wrapper->commerce_customer_address->organisation_name->value(),
@@ -295,30 +295,49 @@ function commerce_fulfilment_add_product_form_submit($form, &$form_state){
   $package_wrapper = entity_metadata_wrapper('package', $package[$package_id[0]]);
 
   $products = array();
-  foreach($package_wrapper->line_items->value() as $line_item){
+
+  foreach($package_wrapper->commerce_fulfilment_line_items->value() as $line_item){
     $products[] = $line_item;
   }
-  dpm($products);
 
   $argument = commerce_fulfilment_get_product_array($order_id, (int)$form_state['values']['commerce_fulfilment_product']);
 
   if($form_state['values']['commerce_fulfilment_radios'] == 0) {
-
-    $package[$package_id[0]]->line_items['und'][] = $argument;
-    $package[$package_id[0]]->save('package', $package);
+    $count= 0;
+    foreach($package_wrapper->commerce_fulfilment_line_items->value() as $index => $line_item){
+      $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+      if($line_item->line_item_id->value() == $argument){
+        $count++;
+      }
+    }
+    if($count == 0) {
+      $package_wrapper->commerce_fulfilment_line_items[] = $argument;
+      $package_wrapper->save();
+    }
+    else{
+      drupal_set_message('Product ' . $argument . ' is already in Package ' . $package_id[0] . '.');
+    }
   }
   elseif($form_state['values']['commerce_fulfilment_radios'] == 1) {
     $count = 0;
-    foreach ($products as $product) {
-      if ($product == $argument) {
-        $package[$package_id[0]]->line_items['und'][$count] = NULL;
-        $package[$package_id[0]]->save('package', $package);
+    $success_count = 0;
+    foreach ($products as $line_item) {
+      $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+      if ($line_item->line_item_id->value() == $argument) {
+        unset($package_wrapper->commerce_fulfilment_line_items[$count]);
+        $package_wrapper->save();
+        drupal_set_message('Product ' . $argument . ' was removed from Package ' . $package_id[0] . '.');
+        $success_count++;
       }
       $count++;
+    }
+    if($success_count == 0){
+      drupal_set_message('Product ' . $argument . ' was not found in Package ' . $package_id[0] . '.');
     }
   }
   elseif($form_state['values']['commerce_fulfilment_radios']==2){
     $package[$package_id[0]]->delete();
+    drupal_set_message('Package ' . $package_id[0] . 'was deleted');
   }
 }
 
@@ -868,6 +887,66 @@ function commerce_fulfilment_entity_info(){
   );
   return $info;
 }
+
+/**
+ * Implement hook_enable()
+ */
+function commerce_fulfilment_enable() {
+  commerce_fulfilment_configure_package_type();
+}
+/**
+ * @param $type
+ *
+ * Ensures the line item field is present on the default order bundle.
+ */
+function commerce_fulfilment_configure_package_type($type = 'package') {
+  // Look for or add a line item reference field to the order type.
+  $field_name = 'commerce_fulfilment_line_items';
+  commerce_activate_field($field_name);
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('package', $field_name, $type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'commerce_line_item_reference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'entity_types' => array('package'),
+      'translatable' => FALSE,
+      'locked' => TRUE,
+    );
+    $field = field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'package',
+      'bundle' => $type,
+      'label' => t('Line items'),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'commerce_line_item_manager',
+        'weight' => -10,
+      ),
+      'display' => array(),
+    );
+
+    // Set the default display formatters for various view modes.
+    foreach (array('default', 'customer', 'administrator') as $view_mode) {
+      $instance['display'][$view_mode] = array(
+        'label' => 'hidden',
+        'type' => 'commerce_line_item_reference_view',
+        'weight' => -10,
+      );
+    }
+
+    field_create_instance($instance);
+  }
+}
+
 class shipmentEntityController extends EntityAPIController{
 
 }
