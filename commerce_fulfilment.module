@@ -60,7 +60,7 @@ function commerce_fulfilment_menu() {
         'title' => 'Shipping Label',
         'page callback' => 'commerce_fulfilment_shipping_label_content',
         'page arguments' => array(5),
-        'access c/commerce/orders/2/commerce_fulfilmentallback' => true,
+        'access callback' => true,
         'type' => MENU_CALLBACK,
     );
     $items['admin/commerce/orders/%/commerce_fulfilment/%/packing_slip'] = array(
@@ -293,12 +293,17 @@ function commerce_fulfilment_add_product_form_submit($form, &$form_state){
 
     $package = entity_load('package', $package_id, array('order_id' => $order_id));
     $package_wrapper = entity_metadata_wrapper('package', $package[$package_id[0]]);
-    $products = $package->line_items['und'];
 
+    $products = array();
+    foreach($package_wrapper->line_items->value() as $line_item){
+        $products[] = $line_item;
+    }
     dpm($products);
+
     $argument = commerce_fulfilment_get_product_array($order_id, (int)$form_state['values']['commerce_fulfilment_product']);
 
     if($form_state['values']['commerce_fulfilment_radios'] == 0) {
+
         $package[$package_id[0]]->line_items['und'][] = $argument;
         $package[$package_id[0]]->save('package', $package);
     }
@@ -356,8 +361,8 @@ function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
 function commerce_fulfilment_packing_slip_form_submit($form, &$form_state){
     $package_arr['und'] = entity_load('package', FALSE, array('order_id' => $form_state['values']['commerce_fulfilment_order_id']));
     $argument = commerce_fulfilment_get_package_array($package_arr, (int)$form_state['values']['commerce_fulfilment_package']);
-    $order_id = $form_state['values']['commerce_fulfilment_order_id'];
-    $form_state['redirect'] = 'admin/commerce/orders/' . $order_id .'/commerce_fulfilment/' . $argument . '/packing_slip';
+
+    $form_state['redirect'] = 'admin/commerce/orders/' . $form_state['values']['commerce_fulfilment_order_id'] .'/commerce_fulfilment/' . $argument . '/packing_slip';
 }
 
 /**
@@ -384,8 +389,8 @@ function commerce_fulfilment_packing_slip_content($package_id){
         <table cellpadding = "15" width = "700" >';
     $output .= '<th align = "left"> Product Code:</th><th align = "left"> Quantity</th><th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>';
     foreach($products as $product){
-        $prices[0] = $product->commerce_unit_price['und'][0][amount];
-        $prices[1] = $product->commerce_total['und'][0][amount];
+        $prices[0] = $product->commerce_unit_price['und'][0]['amount'];
+        $prices[1] = $product->commerce_total['und'][0]['amount'];
 
         $length = strlen($prices[0]);
         $prices[0] = substr_replace($prices[0], '.', $length - 2, 0);
@@ -393,8 +398,8 @@ function commerce_fulfilment_packing_slip_content($package_id){
         $prices[1] = substr_replace($prices[1], '.', $length - 2, 0);
 
         $output .= '<tr><td>' . $product->line_item_label . '</td><td>' . $product->quantity .'</td><td>' .
-             $prices[0] . ' ' . $product->commerce_unit_price['und'][0][currency_code] . '</td><td>' . $prices[1] . ' '
-            . $product->commerce_total['und'][0][currency_code] . '</td></tr>';
+             $prices[0] . ' ' . $product->commerce_unit_price['und'][0]['currency_code'] . '</td><td>' . $prices[1] . ' '
+            . $product->commerce_total['und'][0]['currency_code'] . '</td></tr>';
     }
     $output .= '</table></td></tr>';
     $output .= '<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_selected[$package_id]->package_id . '<br><strong>Package:</strong> 1 of ' . $count . '</td>';
@@ -465,7 +470,7 @@ function commerce_fulfilment_add_package_form_builder($form, &$form_state, $args
     $options = array(0 => t('Add Package'),1 => t('Remove Package'), 2 => t('Delete Shipment'));
     $shipment_id = $args[0];
     $shipment = entity_load('shipment', FALSE, array('shipment_id'=>$shipment_id));
-    dpm($shipment);
+//    dpm($shipment);
     $order_id = $shipment[$shipment_id]->order_num;
     $package_arr['und'] = entity_load('package', FALSE, array('order_id' => $order_id));
     //dpm($package_arr);
@@ -514,10 +519,6 @@ function commerce_fulfilment_shipping_label_print_form($form, &$form_state, $ord
         '#type' => 'hidden',
         '#value' => $order_id,
     );
-    $form['commerce_fulfilment_shipment_array'] = array(
-        '#type' => 'hidden',
-        '#value' => $shipment_arr,
-    );
     $form['commerce_fulfilment_title'] = array(
         '#markup'=>'<h2>Print Shipping Label:</h2>'
     );
@@ -539,8 +540,9 @@ function commerce_fulfilment_shipping_label_print_form($form, &$form_state, $ord
  * redirects the user to the shipping label page
  */
 function commerce_fulfilment_shipping_label_print_form_submit($form, &$form_state){
-    $argument = commerce_fulfilment_get_shipment_array($form_state['values']['commerce_fulfilment_shipment_array'], (int)$form_state['values']['commerce_fulfilment_shipment']);
     $order_id = $form_state['values']['commerce_fulfilment_order_id'];
+    $shipment_arr['und'] = entity_load('shipment', FALSE, array('order_num' => $order_id));
+    $argument = commerce_fulfilment_get_shipment_array($shipment_arr, (int)$form_state['values']['commerce_fulfilment_shipment']);
     $form_state['redirect'] = 'admin/commerce/orders/' . $order_id .'/commerce_fulfilment/' . $argument . '/shipping_label';
 }
 
@@ -625,39 +627,63 @@ function commerce_fulfilment_get_package_array($packages, $index = FALSE){
  * Places a package into a shipment
  */
 function commerce_fulfilment_add_package_form_submit(&$form, &$form_state){
-
+    //loads shipment
     $shipment_id = $form_state['values']['commerce_fulfilment_shipment_id'];
     $shipment = entity_load('shipment', FALSE, array('shipment_id'=>$shipment_id));
+
+    //loads an array of package entities in the shipment
     $order_id = $form_state['values']['commerce_fulfilment_order_id'];
     $package_arr['und'] = entity_load('package', FALSE, array('order_id' => $order_id));
     $package_id = (int)$form_state['values']['commerce_fulfilment_package'];
+
+    //gets the argument to add/remove from the shipment
     $arg = commerce_fulfilment_get_package_array($package_arr , $package_id);
+
+    //checks if there is a package with the argument ID
     $package = $package_arr['und'][$arg];
     $package_ids = $shipment[$shipment_id]->package_num['und'];
     $package_id = $package->package_id;
-    if($form_state['values']['commerce_fulfilment_radios'] == 0 ) {
-        $shipment[$shipment_id]->package_num['und'][] = $package_id;
-        $shipment[$shipment_id]->save('shipment', $shipment);
 
+    if($form_state['values']['commerce_fulfilment_radios'] == 0 ) {
+        $count = 0;
+        if(isset($package_ids)) {
+            foreach ($package_ids as $pack_id) {
+                if ($pack_id == $arg) {
+                    $count++;
+                }
+            }
+        }
+        if($count == 0) {
+            $shipment[$shipment_id]->package_num['und'][] = $package_id;
+            $shipment[$shipment_id]->save('shipment', $shipment);
+        }
+        else{
+            drupal_set_message('Package ' . $arg . ' is already in Shipment ' . $shipment_id . '.');
+        }
     }
     elseif($form_state['values']['commerce_fulfilment_radios'] == 1) {
-
+        $success_count = 0;
         for($counting = count($package_ids)-1; $counting>=0; $counting--) {
 
             if ($shipment[$shipment_id]->package_num['und'][$counting] == $package_id) {
                 $shipment[$shipment_id]->package_num['und'][$counting] = NULL;
                 $shipment[$shipment_id]->save('shipment', $shipment);
+                $success_count++;
             }
+        }
+        if($success_count == 0){
+            drupal_set_message('Package ' . $arg . ' was not found in Shipment ' . $shipment_id . '.');
         }
     }
     elseif($form_state['values']['commerce_fulfilment_radios'] == 2){
         $shipment[$shipment_id]->delete();
+        drupal_set_message('Shipment ' . $shipment_id . ' deleted.');
     }
 }
 /**
  * @param $form
  * @param $form_state
- * @param $order
+ * @param $order_id
  * @return array
  *
  * Implements hook_form
@@ -695,8 +721,10 @@ function commerce_fulfilment_create_shipment_form_submit(&$form, &$form_state){
     $order_id = $form_state['values']['commerce_fulfilment_order_id'];
     $order = commerce_order_load($order_id);
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-    $shipping = commerce_customer_profile_load($order_wrapper->commerce_customer_shipping->profile_id->value());
-    dpm($shipping);
+    $profile = commerce_customer_profile_load($order_wrapper->commerce_customer_shipping->profile_id->value());
+    $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
+    dpm($order);
+
     $entity_type = 'shipment';
     $entity = entity_create($entity_type, array(
         'order_num' => $order->order_id,
@@ -705,19 +733,15 @@ function commerce_fulfilment_create_shipment_form_submit(&$form, &$form_state){
         'dates' => array(
             'created' => date('ymd'),
         ),
-        'method' => array(
-            'method' => $order->commerce_order_total[0]['data']['components'][1]['name'],
-            'price' => $order->commerce_order_total[0]['data']['components'][1]['price'],
-        ),
         'shipping_info' => array(
-            'firstName' => substr($shipping->commerce_customer_address[0]['first_name'], 0, 50),
-            'lastName' => substr($shipping->commerce_customer_address[0]['last_name'], 0, 50),
-            'company' => substr($shipping->commerce_customer_address[0]['organisation_name'], 0, 50),
-            'address' => substr($shipping->commerce_customer_address[0]['thoroughfare'], 0, 60),
-            'city' => substr($shipping->commerce_customer_address[0]['locality'], 0, 40),
-            'state' => substr($shipping->commerce_customer_address[0]['administrative_area'], 0, 40),
-            'zip' => substr($shipping->commerce_customer_address[0]['postal_code'], 0, 20),
-            'country' => $shipping->commerce_customer_address[0]['country'],
+            'firstName' => $profile_wrapper->commerce_customer_address->first_name->value(),
+            'lastName' => $profile_wrapper->commerce_customer_address->last_name->value(),
+            'company' => $profile_wrapper->commerce_customer_address->organisation_name->value(),
+            'address' => $profile_wrapper->commerce_customer_address->thoroughfare->value(),
+            'city' => $profile_wrapper->commerce_customer_address->locality->value(),
+            'state' => $profile_wrapper->commerce_customer_address->administrative_area->value(),
+            'zip' => $profile_wrapper->commerce_customer_address->postal_code->value(),
+            'country' => $profile_wrapper->commerce_customer_address->country->value(),
         ),
         'tracking_number' => $form_state['values']['commerce_fulfilment_tracking_number'],
     ));
