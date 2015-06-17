@@ -112,6 +112,7 @@ function commerce_fulfilment_package_content($order){
     }
     foreach ($line_items as $line_item) {
       $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+      $output .= '<p><strong>Quantity: </strong>' . $line_item->quantity . '</p>';
     }
     $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package_wrapper->package_id->value(), array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
     $output .= drupal_render($get_form);
@@ -466,15 +467,22 @@ function commerce_fulfilment_shipment_content($order) {
   }
   $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
   foreach ($shipments as $shipment) {
+    dpm($shipment);
     $shipment_id = $shipment->shipment_id;
     $output .= '<h3>Shipment ' . $shipment_id . ':</h3>';
-    $output .= '<h4>Packages in Shipment:</h4>';
+    $output .= '<p>&emsp;<strong>Date Created: </strong>' . date("Y M d", strtotime($shipment->dates['created'])) . '</p>';
+    $output .= '<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
+       ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
+       ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>';
+
+    $output .= '<h4>&emsp;Packages in Shipment:</h4>';
     $package_ids = $shipment->package_num['und'];
     if($package_ids != NULL) {
       foreach ($package_ids as $package_id) {
         if ($package_id != NULL) {
           $package = entity_load('package', FALSE, array('package_id' => $package_id));
-          $output .= '<p><strong>Package ID: </strong>' . $package_wrapper->package_id->value() . '</p><p><strong>Shipping Info: </strong>' . $package[$package_id]->shipping_info['address'] . '</p>';
+          $package_wrapper = entity_metadata_wrapper('package', $package[$package_id]);
+          $output .= '<p>&emsp;&emsp;<strong>Package ID: </strong>' . $package_wrapper->package_id->value() . '</p>';
         }
       }
     }
