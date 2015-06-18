@@ -111,8 +111,8 @@ function commerce_fulfilment_package_content($order){
       $line_items[] = $line_item;
     }
     foreach ($line_items as $line_item) {
-      $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
-      $output .= '<p><strong>Quantity: </strong>' . $line_item->quantity . '</p>';
+      $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p>&emsp;<strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+      $output .= '<p>&emsp;<strong>Quantity: </strong>' . $line_item->quantity . '</p>';
     }
     $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package_wrapper->package_id->value(), array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
     $output .= drupal_render($get_form);
@@ -129,7 +129,7 @@ function commerce_fulfilment_package_content($order){
 /**
  * @param $form
  * @param $form_state
- * @param $order
+ * @param $order_id
  * @return array
  *
  * implements hook_form
@@ -197,6 +197,27 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
   $entity->save('package', $entity);
 
 }
+//function commerce_fulfilment_action_info(){
+//  return array(
+//    'commerce_fulfilment_add_product_action' => array(
+//      'type' => 'entity',
+//      'label' => t('Add product to package'),
+//      'configurable' => TRUE,
+//      'pass rows' => TRUE,
+//    )
+//  );
+//}
+////function commerce_fulfilment_add_product_to_package_form($form, &$form_state){
+////  $form = array();
+////  $form['package'] = array(
+////    '#type' => 'select',
+////    '#title' => t('Select Package: '),
+////    '#options' =>
+////  ),
+////}
+//function add_product_to_package(&$entity, $context = array){
+//
+//}
 /**
  * @param $form_id
  * @param $args
