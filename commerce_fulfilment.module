@@ -404,20 +404,25 @@ function commerce_fulfilment_packing_slip_content($package_id){
   foreach($packages as $package){
     $count++;
   }
-  $image = variable_get('logo', NULL);
+  $image = variable_get('commerce_fulfilment_logo', NULL);
   $image_obj = file_load_multiple($image);
   $image_obj_url = file_create_url($image_obj->uri);
 
   $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
-  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>'. variable_get('company', NULL)
-    .'</p>' . variable_get('address', NULL) .
-    '<br>' . variable_get('phone', NULL) . '</td></tr><tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
+  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
+    . variable_get('commerce_fulfilment_company', NULL) . '</p>&emsp;'
+    . variable_get('commerce_fulfilment_address', NULL) . '<br>&emsp;'
+    . variable_get('commerce_fulfilment_phone', NULL)
+    . '</td></tr>');
+
+  $output .= t('<tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
         <table cellpadding = "15" width = "700" >');
 
   $output .= t('<th align = "left"> Product Code:</th><th align = "left"> Quantity</th>
     <th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>');
+
   foreach($products as $product){
-    dpm($product);
+
     $product_wrapper = entity_metadata_wrapper('commerce_line_item', $product);
     $prices[0] = $product_wrapper->commerce_unit_price->amount->value();
     $prices[1] = $product_wrapper->commerce_total->amount->value();
@@ -604,12 +609,13 @@ function commerce_fulfilment_shipping_label_print_form_submit($form, &$form_stat
 function commerce_fulfilment_shipping_label_content($shipment_id){
   $shipment_arr = entity_load('shipment', FALSE, array(shipment_id => $shipment_id));
   $shipment = $shipment_arr[$shipment_id];
-  $image = variable_get('logo', NULL);
+  $image = variable_get('commerce_fulfilment_logo', NULL);
   $image_obj = file_load($image);
   $image_obj_url = file_create_url($image_obj->uri);
   $output = t('<table border = "1px solid black" height = "350" width = "700"><tr><td height = "50%">
-    <strong> From: </Strong>' . variable_get('company', NULL) . '<br>' . variable_get('address', NULL)
-    . '<br>' . variable_get('phone', NULL) . '</td>');
+    <strong> From: </Strong>' . variable_get('commerce_fulfilment_company', NULL) . '<br>&emsp;&emsp;&emsp;'
+    . variable_get('commerce_fulfilment_address', NULL)
+    . '<br>&emsp;&emsp;&emsp;' . variable_get('commerce_fulfilment_phone', NULL) . '</td>');
   $output .= t('<td align = "center"><img src = "' . $image_obj_url .  '")></td></tr>');
   $output .= t('<tr><td height = "50%"><strong>To: </strong>' . $shipment->shipping_info['firstName'] . ' '
     . $shipment->shipping_info['lastName'] . '<br>'
