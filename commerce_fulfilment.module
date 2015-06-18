@@ -100,7 +100,7 @@ function commerce_fulfilment_package_content($order){
   //dpm($packages);
   $output = '<table><tr><td style = vertical-align:top>';
   $output .= '<h2>' . t('Products in Order ' .$order_id . ':') . '</h2>';
-  $output .= views_embed_view('commerce_fulfilment_order', 'order_block', $order_id);
+  $output .= views_embed_view('commerce_fulfilment_line_items', 'default', $order_id);
   $output .= '</td><td style = vertical-align:top><h2>Created Packages for This Order:</h2>';
   foreach ($packages as $package) {
     $package_wrapper = entity_metadata_wrapper('package', $package);
@@ -111,8 +111,8 @@ function commerce_fulfilment_package_content($order){
       $line_items[] = $line_item;
     }
     foreach ($line_items as $line_item) {
-      $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
-      $output .= '<p><strong>Quantity: </strong>' . $line_item->quantity . '</p>';
+      $output .= '<p><strong>Product ID: </strong>' . $line_item->line_item_id . '</p><p>&emsp;<strong>Product Code: </strong>' . $line_item->line_item_label . '</p>';
+      $output .= '<p>&emsp;<strong>Quantity: </strong>' . $line_item->quantity . '</p>';
     }
     $get_form = drupal_get_form('commerce_fulfilment_add_product_form_' . $package_wrapper->package_id->value(), array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
     $output .= drupal_render($get_form);
@@ -129,7 +129,7 @@ function commerce_fulfilment_package_content($order){
 /**
  * @param $form
  * @param $form_state
- * @param $order
+ * @param $order_id
  * @return array
  *
  * implements hook_form
