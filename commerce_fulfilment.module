@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @return array
  *
@@ -11,7 +10,6 @@ function commerce_fulfilment_menu() {
   $items = array();
 
   //Creates the commerce fulfilment link
-
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment'] = array(
     'title' => 'Fulfilment',
     'page callback' => 'commerce_fulfilment_package_content',
@@ -21,19 +19,18 @@ function commerce_fulfilment_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 50
   );
+  // Creates the admin option link under the Fulfilment tab
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/admin'] = array(
     'title'=> 'Admin Options',
-    'page callback' => 'commerce_fulfilment_admin_content',
-    'page arguments' => array(3),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_fulfilment_admin_form', 3),
     'access callback' => 'commerce_order_access',
     'access arguments' => array('update', 3),
     'access callback' => true,
     'type' => MENU_LOCAL_TASK,
     'weight' => 51
   );
-
   //creates link to the package page
-
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/orders'] = array(
     'title' => 'Packages',
     'page callback' => 'commerce_fulfilment_package_content',
@@ -44,10 +41,7 @@ function commerce_fulfilment_menu() {
     'weight' => -7,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-
-
   //Creates link to the shipment page.
-
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/shipments'] = array(
     'title' => 'Shipments',
     'page callback' => 'commerce_fulfilment_shipment_content',
@@ -57,6 +51,7 @@ function commerce_fulfilment_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 0,
   );
+  //Menu item for shipping label
   $items['admin/commerce/orders/%/commerce_fulfilment/%/shipping_label'] = array(
     'title' => 'Shipping Label',
     'page callback' => 'commerce_fulfilment_shipping_label_content',
@@ -64,6 +59,7 @@ function commerce_fulfilment_menu() {
     'access callback' => true,
     'type' => MENU_CALLBACK,
   );
+  //Menu item for packing slip
   $items['admin/commerce/orders/%/commerce_fulfilment/%/packing_slip'] = array(
     'title' => 'Packing Slip',
     'page callback' => 'commerce_fulfilment_packing_slip_content',
@@ -72,18 +68,6 @@ function commerce_fulfilment_menu() {
     'type' => MENU_CALLBACK,
   );
   return $items;
-}
-/**
- * @return mixed
- * implements admin page.
- * prints admin form
- * Also shows menu tabs for navigation.
- */
-function commerce_fulfilment_admin_content(){
-
-  $get_form = drupal_get_form('commerce_fulfilment_admin_form');
-  return drupal_render($get_form);
-
 }
 /**
  * @param $order
@@ -470,6 +454,7 @@ function commerce_fulfilment_shipment_content($order) {
   foreach ($shipments as $shipment) {
     $shipment_id = $shipment->shipment_id;
     $output .= '<h3>Shipment ' . $shipment_id . ':</h3>';
+    $output .= '<p>&emsp;<strong>Tracking Number: </strong>' . $shipment->tracking_number . '</p>';
     $output .= '<p>&emsp;<strong>Date Created: </strong>' . date("Y M d", strtotime($shipment->dates['created'])) . '</p>';
     $output .= '<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
        ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
@@ -860,7 +845,7 @@ function commerce_fulfilment_admin_form_validate($form, &$form_state){
 function commerce_fulfilment_admin_form_submit($form, &$form_state){
   //gets global variable package_type
   $package_type = variable_get('package_type');
-  
+
   //initializes global variable package_type
   if(!isset($package_type)){
     $package_type = array();
