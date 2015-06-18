@@ -89,3 +89,17 @@ function commerce_fulfilment_schema() {
   return $schema;
 
 }
+
+/**
+ * implements hook hook_uninstall
+ * clears global variables
+ * 
+ */
+function commerce_fulfilment_uninstall(){
+  variable_del('package_type');
+  variable_del('commerce_fulfilment_company');
+  variable_del('commerce_fulfilment_address');
+  variable_del('commerce_fulfilment_phone');
+  variable_del('commerce_fulfilment_boxtype');
+  variable_del('commerce_fulfilment_logo');
+}
