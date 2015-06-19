@@ -72,17 +72,17 @@ function commerce_fulfilment_admin_form_validate($form, &$form_state){
 
 function commerce_fulfilment_admin_form_submit($form, &$form_state){
   //gets global variable package_type
-  $package_type = variable_get('package_type');
+  $package_type = variable_get('commerce_fulfilment_package_type');
 
   //initializes global variable package_type
   if(!isset($package_type)){
     $package_type = array();
     $package_type[] = $form_state['values']['commerce_fulfilment_boxtype'];
-    variable_set('package_type', $package_type);
+    variable_set('commerce_fulfilment_package_type', $package_type);
   }
   //appends global variable package_type
   else{
     $package_type[] = $form_state['values']['commerce_fulfilment_boxtype'];
-    variable_set('package_type', $package_type);
+    variable_set('commerce_fulfilment_package_type', $package_type);
   }
 }
