@@ -395,7 +395,6 @@ function commerce_fulfilment_packing_slip_form_submit($form, &$form_state){
  */
 function commerce_fulfilment_packing_slip_content($package_id){
   $package_selected = entity_load('package', FALSE, array('package_id' => $package_id));
-  dpm($package_selected[$package_id]);
   $package_wrapper = entity_metadata_wrapper('package', $package_selected[$package_id]);
   $order_id = $package_selected[$package_id]->order_id;
   $packages = entity_load('package', FALSE, array('order_id' => $order_id));
@@ -405,9 +404,15 @@ function commerce_fulfilment_packing_slip_content($package_id){
     $count++;
   }
   $image = variable_get('commerce_fulfilment_logo', NULL);
-  $image_obj = file_load_multiple($image);
-  $image_obj_url = file_create_url($image_obj->uri);
-
+  if($image !== NULL) {
+    $image_obj = file_load($image);
+    if (isset($image_obj->uri)) {
+      $image_obj_url = file_create_url($image_obj->uri);
+    }
+  }
+  else {
+    $image_obj_url = NULL;
+  }
   $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
   $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
     . variable_get('commerce_fulfilment_company', NULL) . '</p>&emsp;'
@@ -607,11 +612,18 @@ function commerce_fulfilment_shipping_label_print_form_submit($form, &$form_stat
  *
  */
 function commerce_fulfilment_shipping_label_content($shipment_id){
-  $shipment_arr = entity_load('shipment', FALSE, array(shipment_id => $shipment_id));
+  $shipment_arr = entity_load('shipment', FALSE, array('shipment_id' => $shipment_id));
   $shipment = $shipment_arr[$shipment_id];
   $image = variable_get('commerce_fulfilment_logo', NULL);
-  $image_obj = file_load($image);
-  $image_obj_url = file_create_url($image_obj->uri);
+  if($image !== NULL) {
+    $image_obj = file_load($image);
+    if (isset($image_obj->uri)) {
+      $image_obj_url = file_create_url($image_obj->uri);
+    }
+  }
+  else {
+    $image_obj_url = NULL;
+  }
   $output = t('<table border = "1px solid black" height = "350" width = "700"><tr><td height = "50%">
     <strong> From: </Strong>' . variable_get('commerce_fulfilment_company', NULL) . '<br>&emsp;&emsp;&emsp;'
     . variable_get('commerce_fulfilment_address', NULL)
