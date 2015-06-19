@@ -112,8 +112,8 @@ function commerce_fulfilment_views_default_views() {
  */
 function commerce_fulfilment_entity_info(){
   $info = array();
-  $info['package'] = array(
-    'label' => t('package'),
+  $info['commerce_fulfilment_package'] = array(
+    'label' => t('commerce_fulfilment_package'),
     'base table' => 'commerce_fulfilment_packages',
     'entity keys' => array(
       'id' => 'package_id'
@@ -121,10 +121,10 @@ function commerce_fulfilment_entity_info(){
     'entity class'=> 'packageEntity',
     'controller class' =>'packageEntityController',
     'fieldable' => true,
-    'module'=>'commerce_fulfilment'
+    'module'=>'commerce_fulfilment',
   );
-  $info['shipment'] = array(
-    'label' => t('shipment'),
+  $info['commerce_fulfilment_shipment'] = array(
+    'label' => t('commerce_fulfilment_shipment'),
     'base table' => 'commerce_fulfilment_shipments',
     'entity keys' => array(
       'id' => 'shipment_id',
@@ -132,7 +132,7 @@ function commerce_fulfilment_entity_info(){
     'entity class'=> 'shipmentEntity',
     'controller class' =>'shipmentEntityController',
     'fieldable' => true,
-    'module'=>'commerce_fulfilment'
+    'module'=>'commerce_fulfilment',
   );
   return $info;
 }
@@ -147,21 +147,21 @@ function commerce_fulfilment_enable() {
  *
  * Ensures the line item field is present on the default order bundle.
  */
-function commerce_fulfilment_configure_package_type($type = 'package') {
+function commerce_fulfilment_configure_package_type($type = 'commerce_fulfilment_package') {
   // Look for or add a line item reference field to the order type.
   $field_name = 'commerce_fulfilment_line_items';
   commerce_activate_field($field_name);
   field_cache_clear();
 
   $field = field_info_field($field_name);
-  $instance = field_info_instance('package', $field_name, $type);
+  $instance = field_info_instance('commerce_fulfilment_package', $field_name, $type);
 
   if (empty($field)) {
     $field = array(
       'field_name' => $field_name,
       'type' => 'commerce_line_item_reference',
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-      'entity_types' => array('package'),
+      'entity_types' => array('commerce_fulfilment_package'),
       'translatable' => FALSE,
       'locked' => TRUE,
     );
@@ -171,7 +171,7 @@ function commerce_fulfilment_configure_package_type($type = 'package') {
   if (empty($instance)) {
     $instance = array(
       'field_name' => $field_name,
-      'entity_type' => 'package',
+      'entity_type' => 'commerce_fulfilment_package',
       'bundle' => $type,
       'label' => t('Line items'),
       'settings' => array(),
