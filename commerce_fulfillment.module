@@ -11,7 +11,7 @@ function commerce_fulfillment_menu() {
 
   //Creates the commerce fulfillment link
   $items['admin/commerce/orders/%commerce_order/commerce_fulfillment'] = array(
-    'title' => 'fulfillment',
+    'title' => t('Fulfillment'),
     'page callback' => 'commerce_fulfillment_package_content',
     'page arguments' => array(3),
     'access callback' => 'commerce_order_access',
@@ -24,7 +24,7 @@ function commerce_fulfillment_menu() {
 
   // Creates the admin option link under the fulfillment tab
   $items['admin/commerce/orders/%commerce_order/commerce_fulfillment/admin'] = array(
-    'title'=> 'Admin Options',
+    'title'=> t('Admin Options'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_fulfillment_admin_form', 3),
     'access callback' => 'commerce_order_access',
@@ -38,7 +38,7 @@ function commerce_fulfillment_menu() {
 
   //creates link to the package page
   $items['admin/commerce/orders/%commerce_order/commerce_fulfillment/orders'] = array(
-    'title' => 'Packages',
+    'title' => t('Packages'),
     'page callback' => 'commerce_fulfillment_package_content',
     'page arguments' => array(3),
     'access callback' => 'commerce_order_access',
@@ -52,7 +52,7 @@ function commerce_fulfillment_menu() {
 
   //Creates link to the shipment page.
   $items['admin/commerce/orders/%commerce_order/commerce_fulfillment/shipments'] = array(
-    'title' => 'Shipments',
+    'title' => t('Shipments'),
     'page callback' => 'commerce_fulfillment_shipment_content',
     'page arguments' => array(3),
     'access callback' => 'commerce_order_access',
@@ -65,7 +65,7 @@ function commerce_fulfillment_menu() {
 
   //Menu item for shipping label
   $items['admin/commerce/orders/%/commerce_fulfillment/%/shipping_label'] = array(
-    'title' => 'Shipping Label',
+    'title' => t('Shipping Label'),
     'page callback' => 'commerce_fulfillment_shipping_label_content',
     'page arguments' => array(5),
     'access callback' => true,
@@ -76,7 +76,7 @@ function commerce_fulfillment_menu() {
 
   //Menu item for packing slip
   $items['admin/commerce/orders/%/commerce_fulfillment/%/packing_slip'] = array(
-    'title' => 'Packing Slip',
+    'title' => t('Packing Slip'),
     'page callback' => 'commerce_fulfillment_packing_slip_content',
     'page arguments' => array(5),
     'access callback' => true,
@@ -121,7 +121,7 @@ function commerce_fulfillment_views_default_views() {
 function commerce_fulfillment_entity_info(){
   $info = array();
   $info['commerce_fulfillment_package'] = array(
-    'label' => t('Commerce fulfillment Package'),
+    'label' => t('Commerce Fulfillment Package'),
     'base table' => 'commerce_fulfillment_packages',
     'entity keys' => array(
       'id' => 'package_id'
@@ -132,7 +132,7 @@ function commerce_fulfillment_entity_info(){
     'module'=>'commerce_fulfillment',
   );
   $info['commerce_fulfillment_shipment'] = array(
-    'label' => t('Commerce fulfillment Shipment'),
+    'label' => t('Commerce Fulfillment Shipment'),
     'base table' => 'commerce_fulfillment_shipments',
     'entity keys' => array(
       'id' => 'shipment_id',

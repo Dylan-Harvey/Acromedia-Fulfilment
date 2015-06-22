@@ -14,7 +14,7 @@ function commerce_fulfillment_admin_form($form, &$form_state){
 
 //  $form['#tree'] = TRUE;
   $form['commerce_fulfillment_title'] = array(
-    '#markup' => '<h2>Admin Page</h2>'
+    '#markup' => '<h2' . t('Admin Page') . '</h2>'
   );
 
   //Creates seperate information fields
@@ -238,7 +238,7 @@ function commerce_fulfillment_create_package_form($form, &$form_state,$order_id)
   );
   $form['commerce_fulfillment_package_type'] = array(
     '#type' => 'select',
-    '#title' => 'Select package type: ',
+    '#title' => t('Select package type: '),
     '#options' => $package_type,
     '#default_value' => 'default',
   );
@@ -306,7 +306,7 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
     '#value' => $order_id,
   );
   $form['commerce_fulfillment_title'] = array(
-    '#markup'=>'<h2>Print Packing Slip:</h2>'
+    '#markup' => '<h2>' . t('Print Packing Slip:') . '</h2>',
   );
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
@@ -317,7 +317,9 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
     '#type' => 'submit',
     '#value' => t('Print Packing Slip')
   );
+
   return $form;
+
 }
 
 /**
@@ -491,7 +493,7 @@ function commerce_fulfillment_shipping_label_print_form($form, &$form_state, $or
     '#value' => $order_id,
   );
   $form['commerce_fulfillment_title'] = array(
-    '#markup'=>'<h2>Print Shipping Label:</h2>'
+    '#markup'=>'<h2>' . t('Print Shipping Label:') . '</h2>',
   );
   $form['commerce_fulfillment_shipment'] = array(
     '#type' => 'select',
@@ -626,7 +628,7 @@ function commerce_fulfillment_create_shipment_form($form, &$form_state,$order_id
     '#value' => $order_id,
   );
   $form['commerce_fulfillment_title'] = array(
-    '#markup'=>'<h2>Create a New Shipment:</h2>'
+    '#markup'=>'<h2>' . t('Create a New Shipment:') . '</h2>',
   );
   $form['commerce_fulfillment_tracking_number'] = array(
     '#type' => 'textfield',
