@@ -21,6 +21,7 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   // Creates the admin option link under the Fulfilment tab
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/admin'] = array(
     'title'=> 'Admin Options',
@@ -34,6 +35,7 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   //creates link to the package page
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/orders'] = array(
     'title' => 'Packages',
@@ -47,6 +49,7 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   //Creates link to the shipment page.
   $items['admin/commerce/orders/%commerce_order/commerce_fulfilment/shipments'] = array(
     'title' => 'Shipments',
@@ -59,6 +62,7 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   //Menu item for shipping label
   $items['admin/commerce/orders/%/commerce_fulfilment/%/shipping_label'] = array(
     'title' => 'Shipping Label',
@@ -69,6 +73,7 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   //Menu item for packing slip
   $items['admin/commerce/orders/%/commerce_fulfilment/%/packing_slip'] = array(
     'title' => 'Packing Slip',
@@ -79,8 +84,10 @@ function commerce_fulfilment_menu() {
     'file' => 'commerce_fulfilment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfilment') . '/includes',
   );
+
   return $items;
 }
+
 /**
  * @return array
  * implements hook_views_api
@@ -106,6 +113,7 @@ function commerce_fulfilment_views_default_views() {
 
   return $views;
 }
+
 /**
  * Implements hook_entity_info()
  * Tells the Drupal API about our custom entities.
@@ -134,20 +142,25 @@ function commerce_fulfilment_entity_info(){
     'fieldable' => true,
     'module'=>'commerce_fulfilment',
   );
+
   return $info;
+
 }
+
 /**
  * Implement hook_enable()
  */
 function commerce_fulfilment_enable() {
   commerce_fulfilment_configure_package_type();
 }
+
 /**
  * @param $type
  *
  * Ensures the line item field is present on the default order bundle.
  */
 function commerce_fulfilment_configure_package_type($type = 'commerce_fulfilment_package') {
+
   // Look for or add a line item reference field to the order type.
   $field_name = 'commerce_fulfilment_line_items';
   commerce_activate_field($field_name);
@@ -194,6 +207,7 @@ function commerce_fulfilment_configure_package_type($type = 'commerce_fulfilment
     field_create_instance($instance);
   }
 }
+
 /**
  * @param $form_id
  * @param $args
@@ -204,20 +218,25 @@ function commerce_fulfilment_configure_package_type($type = 'commerce_fulfilment
  */
 function commerce_fulfilment_forms($form_id, $args){
   $forms = array();
+
   if (strpos($form_id, 'commerce_fulfilment_manipulate_package_form_') !== FALSE) {
     $forms[$form_id] = array(
       'callback' => 'commerce_fulfilment_manipulate_package_form_builder',
       'callback arguments' => $args,
     );
   }
+
   if (strpos($form_id, 'commerce_fulfilment_manipulate_shipment_form_') !== FALSE) {
     $forms[$form_id] = array(
       'callback' => 'commerce_fulfilment_manipulate_shipment_form_builder',
       'callback arguments' => $args,
     );
   }
+
   return $forms;
+
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -231,6 +250,7 @@ function commerce_fulfilment_manipulate_package_form_builder($form, &$form_state
   $order_id = $args[1];
   $form = array();
   $options = array(0 => t('Add Product'),1 => t('Remove Product'), 2 => t('Delete Package'));
+
   $form['commerce_fulfilment_package_id'] = array(
     '#type' => 'hidden',
     '#value' => $package_id,
@@ -255,8 +275,11 @@ function commerce_fulfilment_manipulate_package_form_builder($form, &$form_state
     '#value' => t('Submit')
   );
   $form['#submit'][] = 'commerce_fulfilment_manipulate_package_form_submit';
+
   return $form;
+
 }
+
 /**
  * @param $order_id
  * @param $product
@@ -279,8 +302,11 @@ function commerce_fulfilment_get_product_array($order_id, $product = FALSE){
   if($product !== FALSE && is_int($product) && $product <= count($line_ids)) {
     return $line_ids[$product];
   }
+
   return $line_ids;
+
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -306,12 +332,15 @@ function commerce_fulfilment_manipulate_package_form_submit($form, &$form_state)
   //add a product to a package
   if($form_state['values']['commerce_fulfilment_radios'] == 0) {
     $count= 0;
+
     foreach($package_wrapper->commerce_fulfilment_line_items->value() as $index => $line_item){
       $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+
       if($line_item->line_item_id->value() == $argument){
         $count++;
       }
     }
+
     if($count == 0) {
       $package_wrapper->commerce_fulfilment_line_items[] = $argument;
       $package_wrapper->save();
@@ -320,12 +349,15 @@ function commerce_fulfilment_manipulate_package_form_submit($form, &$form_state)
       drupal_set_message('Product ' . $argument . ' is already in Package ' . $package_id[0] . '.');
     }
   }
+
   //remove a product from a package
   elseif($form_state['values']['commerce_fulfilment_radios'] == 1) {
     $count = 0;
     $success_count = 0;
+
     foreach ($products as $line_item) {
       $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+
       if ($line_item->line_item_id->value() == $argument) {
         unset($package_wrapper->commerce_fulfilment_line_items[$count]);
         drupal_set_message('Product ' . $argument . ' was removed from Package ' . $package_id[0] . '.');
@@ -333,20 +365,25 @@ function commerce_fulfilment_manipulate_package_form_submit($form, &$form_state)
       }
       $count++;
     }
+
     $package_wrapper->save();
+
     if($success_count == 0){
       drupal_set_message('Product ' . $argument . ' was not found in Package ' . $package_id[0] . '.');
     }
   }
+
   //delete package
   elseif($form_state['values']['commerce_fulfilment_radios']==2){
     $package[$package_id[0]]->delete();
     drupal_set_message('Package ' . $package_id[0] . ' deleted');
   }
 }
+
 /**
  * @param $form
  * @param $form_state
+ * @param $args
  * @return array
  *
  * implements hook hook_form
@@ -356,13 +393,14 @@ function commerce_fulfilment_manipulate_shipment_form_builder($form, &$form_stat
   $options = array(0 => t('Add Package'),1 => t('Remove Package'), 2 => t('Delete Shipment'));
   $shipment_id = $args[0];
   $shipment = entity_load('commerce_fulfilment_shipment', FALSE, array('shipment_id'=>$shipment_id));
+
   $order_id = $shipment[$shipment_id]->order_num;
   $package_arr = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
+
   $form['commerce_fulfilment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
   );
-
   $form['commerce_fulfilment_shipment_id'] = array(
     '#type' => 'hidden',
     '#value' => $shipment_id,
@@ -383,8 +421,11 @@ function commerce_fulfilment_manipulate_shipment_form_builder($form, &$form_stat
     '#value' => t('Submit'),
   );
   $form['#submit'][] = 'commerce_fulfilment_manipulate_shipment_form_submit';
+
   return $form;
+
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -412,13 +453,17 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
 
   if($form_state['values']['commerce_fulfilment_radios'] == 0 ) {
     $count = 0;
+
     if(isset($package_ids)) {
+
       foreach ($package_ids as $pack_id) {
+
         if ($pack_id == $arg) {
           $count++;
         }
       }
     }
+
     if($count == 0) {
       $shipment[$shipment_id]->package_num[] = $package_id;
       $shipment[$shipment_id]->save('commerce_fulfilment_shipment', $shipment);
@@ -429,6 +474,7 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
   }
   elseif($form_state['values']['commerce_fulfilment_radios'] == 1) {
     $success_count = 0;
+
     for($counting = count($package_ids)-1; $counting>=0; $counting--) {
 
       if ($shipment[$shipment_id]->package_num[$counting] == $package_id) {
@@ -437,6 +483,7 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
         $success_count++;
       }
     }
+
     if($success_count == 0){
       drupal_set_message('Package ' . $arg . ' was not found in Shipment ' . $shipment_id . '.');
     }
@@ -446,15 +493,15 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
     drupal_set_message('Shipment ' . $shipment_id . ' deleted.');
   }
 }
+
 class shipmentEntityController extends EntityAPIController{
-
 }
+
 class shipmentEntity extends Entity{
-
 }
+
 class packageEntityController extends EntityAPIController{
-
 }
-class packageEntity extends Entity{
 
+class packageEntity extends Entity{
 }
