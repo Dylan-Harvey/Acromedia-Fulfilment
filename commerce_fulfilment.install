@@ -19,7 +19,8 @@ function commerce_fulfilment_schema() {
         'not null' => TRUE,
       ),
       'order_id' => array(
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'not null'=> TRUE,
       ),
       'box_type' => array(
@@ -28,7 +29,8 @@ function commerce_fulfilment_schema() {
         'not null' => FALSE,
       ),
       'shipping_info' => array(
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'serialize'=> TRUE,
         'not null' => TRUE,
       ),
@@ -46,40 +48,45 @@ function commerce_fulfilment_schema() {
         'not null' => TRUE,
       ),
       'order_num' => array(
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'not null'=> TRUE,
       ),
       'status' => array(
         'description' => 'Status of the shipment("Pending" or "Completed")',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => '255',
         'not null' => TRUE,
       ),
       'package_num' => array(
         'description' => 'An array of the packages in the shipment.',
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'serialize' => TRUE,
         'not null' => FALSE,
       ),
       'dates' => array (
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'serialize' => TRUE,
         'not null' => FALSE,
       ),
       'shipping_info' => array (
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'serialize' => TRUE,
         'not null' => TRUE,
       ),
       'method' => array (
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'serialize' => TRUE,
         'not null' => FALSE,
       ),
       'tracking_number' => array(
         'description' => 'Tracking number for the shipments',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => '255',
         'not null' => FALSE,
       ),
     ),
@@ -93,13 +100,14 @@ function commerce_fulfilment_schema() {
 /**
  * implements hook hook_uninstall
  * clears global variables
- * 
+ *
  */
 function commerce_fulfilment_uninstall(){
-  variable_del('package_type');
+  variable_del('commerce_fulfilment_package_type');
   variable_del('commerce_fulfilment_company');
   variable_del('commerce_fulfilment_address');
   variable_del('commerce_fulfilment_phone');
   variable_del('commerce_fulfilment_boxtype');
   variable_del('commerce_fulfilment_logo');
+  drupal_flush_all_caches();
 }
