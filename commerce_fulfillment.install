@@ -5,11 +5,11 @@
  * creates the entity base table in the database
  *
  */
-function commerce_fulfilment_schema() {
+function commerce_fulfillment_schema() {
 
   $schema = array();
 
-  $schema['commerce_fulfilment_packages'] = array(
+  $schema['commerce_fulfillment_packages'] = array(
     'description' => 'The base table for the package entity',
     'fields' => array(
       'package_id' => array(
@@ -38,7 +38,7 @@ function commerce_fulfilment_schema() {
     'primary key' => array('package_id'),
   );
 
-  $schema['commerce_fulfilment_shipments'] = array(
+  $schema['commerce_fulfillment_shipments'] = array(
     'description' => 'The base table for the Shipment entity',
     'fields' => array(
       'shipment_id' => array(
@@ -102,12 +102,12 @@ function commerce_fulfilment_schema() {
  * clears global variables
  *
  */
-function commerce_fulfilment_uninstall(){
-  variable_del('commerce_fulfilment_package_type');
-  variable_del('commerce_fulfilment_company');
-  variable_del('commerce_fulfilment_address');
-  variable_del('commerce_fulfilment_phone');
-  variable_del('commerce_fulfilment_boxtype');
-  variable_del('commerce_fulfilment_logo');
+function commerce_fulfillment_uninstall(){
+  variable_del('commerce_fulfillment_package_type');
+  variable_del('commerce_fulfillment_company');
+  variable_del('commerce_fulfillment_address');
+  variable_del('commerce_fulfillment_phone');
+  variable_del('commerce_fulfillment_boxtype');
+  variable_del('commerce_fulfillment_logo');
   drupal_flush_all_caches();
 }
