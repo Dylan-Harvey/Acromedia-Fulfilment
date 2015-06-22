@@ -1,10 +1,10 @@
 <?php
 $view = new view();
-$view->name = 'commerce_fulfilment_line_items';
+$view->name = 'commerce_fulfillment_line_items';
 $view->description = 'Display a set of line items in a table.';
 $view->tag = 'commerce';
 $view->base_table = 'commerce_line_item';
-$view->human_name = 'Commerce Fulfilment Line items';
+$view->human_name = 'Commerce fulfillment Line items';
 $view->core = 0;
 $view->api_version = '3.0';
 $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
