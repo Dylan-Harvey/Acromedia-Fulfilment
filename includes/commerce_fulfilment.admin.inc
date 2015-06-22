@@ -6,8 +6,9 @@
  * Creates an admin page form
  * Will use this data to print packing slips and shipping labels
  */
-function commerce_fulfilment_admin_form(){
+function commerce_fulfilment_admin_form($form, &$form_state){
   $form = array();
+//  $form['#tree'] = TRUE;
   $form['commerce_fulfilment_title'] = array(
     '#markup' => '<h2>Admin Page</h2>'
   );
@@ -17,7 +18,9 @@ function commerce_fulfilment_admin_form(){
   $form['commerce_fulfilment_company_information']=array(
     '#type'=>'fieldset',
     '#title'=>t("Enter your company's information below"),
-    '#description'=>'Enter information to use on Packing Slips and Shipping Labels.'
+    '#description'=>'Enter information to use on Packing Slips and Shipping Labels.',
+    '#prefix' => '<div id="boxtype-field-wrapper">',
+    '#suffix' => '</div>',
   );
 
   //Textfields
@@ -25,24 +28,40 @@ function commerce_fulfilment_admin_form(){
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_company'] = array(
     '#type'=>'textfield',
     '#title'=>t('Company name:'),
-    '#default_value' => variable_get('commerce_fulfilment_company', NULL),
+    '#default_value' => variable_get('commerce_fulfilment_company'),
     '#required' => TRUE,
   );
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_address'] = array(
     '#type'=>'textfield',
     '#title'=>t('Address:'),
-    '#default_value' => variable_get('commerce_fulfilment_address', NULL),
+    '#default_value' => variable_get('commerce_fulfilment_address'),
     '#required' => TRUE,
   );
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_phone'] = array(
     '#type'=>'textfield',
     '#title'=>t('Company Phone Number:'),
-    '#default_value' => variable_get('commerce_fulfilment_phone', NULL),
+    '#default_value' => variable_get('commerce_fulfilment_phone'),
     '#required' => TRUE,
   );
-  $form['commerce_fulfilment_company_information']['commerce_fulfilment_boxtype'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Add Package Type:'),
+  if(!isset($form_state['num_boxtypes'])){
+    $form_state['num_boxtypes'] = 1;
+  }
+
+  for($i = 0; $i < $form_state['num_boxtypes']; $i++){
+    $form['commerce_fulfilment_company_information']['commerce_fulfilment_boxtype'][$i] = array(
+      '#type' => 'textfield',
+      '#title' => t('Add Package Type:'),
+    );
+  }
+  $form['commerce_fulfilment_company_information']['add_boxtype'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add one more'),
+    '#submit' => array('commerce_fulfilment_add_more_add_one'),
+    '#ajax' => array(
+      'callback' => 'commerce_fulfilment_add_more_callback',
+      'wrapper' => 'boxtype-field-wrapper',
+      'method' => 'replace',
+    ),
   );
 
   //Allows user to upload company logo
@@ -52,7 +71,7 @@ function commerce_fulfilment_admin_form(){
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_logo']=array(
     '#type'=>'managed_file',
     '#title'=>t('Upload your company logo:'),
-    '#default_value' => variable_get('commerce_fulfilment_logo', NULL),
+    '#default_value' => variable_get('commerce_fulfilment_logo'),
     '#upload_location' => 'public://logo/'
   );
   $form = system_settings_form($form);
@@ -65,7 +84,8 @@ function commerce_fulfilment_admin_form(){
  */
 function commerce_fulfilment_admin_form_validate($form, &$form_state){
 }
-/** Implements hook hook_form_submit
+/**
+ *  Implements hook hook_form_submit
  *  Does not override system_settings_form submit.
  *  Just handles submission of the package_type variable
  */
@@ -75,16 +95,40 @@ function commerce_fulfilment_admin_form_submit($form, &$form_state){
   $package_type = variable_get('commerce_fulfilment_package_type');
 
   //initializes global variable package_type
-  if(!isset($package_type)){
+  if(!isset($package_type)) {
     $package_type = array();
-    $package_type[] = $form_state['values']['commerce_fulfilment_boxtype'];
-    variable_set('commerce_fulfilment_package_type', $package_type);
   }
   //appends global variable package_type
-  else{
-    $package_type[] = $form_state['values']['commerce_fulfilment_boxtype'];
-    variable_set('commerce_fulfilment_package_type', $package_type);
+  for($i = $form_state['num_boxtypes']-1; $i>=0; $i--) {
+    $package_type[] = $form_state['values'][$i];
   }
+  variable_set('commerce_fulfilment_package_type', $package_type);
+
+}
+
+/**
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ *
+ * Ajax Callback for boxtypes
+ *
+ * Returns the fieldset for the form.
+ */
+function commerce_fulfilment_add_more_callback($form, &$form_state){
+  return $form['commerce_fulfilment_company_information'];
+}
+/**
+ * @param $form
+ * @param $form_state
+ *
+ * Submit handler for the "add-one-more" button.
+ *
+ * Increments the max counter and causes a rebuild.
+ */
+function commerce_fulfilment_add_more_add_one($form, &$form_state) {
+  $form_state['num_boxtypes']++;
+  $form_state['rebuild'] = TRUE;
 }
 /**
  * @param $order
