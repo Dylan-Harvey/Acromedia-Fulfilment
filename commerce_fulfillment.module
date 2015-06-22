@@ -267,7 +267,7 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
     '#title'=>t('Options'),
-    '#default value' => $options[0],
+    '#default_value' => $options[0],
     '#options' => $options
   );
   $form['commerce_fulfillment_add'] = array(
@@ -343,10 +343,11 @@ function commerce_fulfillment_manipulate_package_form_submit($form, &$form_state
 
     if($count == 0) {
       $package_wrapper->commerce_fulfillment_line_items[] = $argument;
+      drupal_set_message(t('Product @argument added to Package @package_id.', array('@argument' => $argument, '@package_id' => $package_id[0])));
       $package_wrapper->save();
     }
     else{
-      drupal_set_message('Product ' . $argument . ' is already in Package ' . $package_id[0] . '.');
+      drupal_set_message(t('Product @argument is already in Package @package_id.', array('@argument' => $argument, '@package_id' => $package_id[0])),'error');
     }
   }
 
@@ -360,7 +361,7 @@ function commerce_fulfillment_manipulate_package_form_submit($form, &$form_state
 
       if ($line_item->line_item_id->value() == $argument) {
         unset($package_wrapper->commerce_fulfillment_line_items[$count]);
-        drupal_set_message('Product ' . $argument . ' was removed from Package ' . $package_id[0] . '.');
+        drupal_set_message(t('Product @argument was removed from Package @package_id.', array('@argument' => $argument, '@package_id' => $package_id[0])));
         $success_count++;
       }
       $count++;
@@ -369,14 +370,14 @@ function commerce_fulfillment_manipulate_package_form_submit($form, &$form_state
     $package_wrapper->save();
 
     if($success_count == 0){
-      drupal_set_message('Product ' . $argument . ' was not found in Package ' . $package_id[0] . '.');
+      drupal_set_message(t('Product @argument was not found in Package @package_id.', array('@argument' => $argument, '@package_id' => $package_id[0])), 'error');
     }
   }
 
   //delete package
   elseif($form_state['values']['commerce_fulfillment_radios']==2){
     $package[$package_id[0]]->delete();
-    drupal_set_message('Package ' . $package_id[0] . ' deleted');
+    drupal_set_message(t('Package @package_id deleted', array('@package_id' => $package_id[0])));
   }
 }
 
@@ -413,7 +414,7 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
     '#title'=>t('Options'),
-    '#default value' => $options[0],
+    '#default_value' => $options[0],
     '#options' => $options
   );
   $form['commerce_fulfillment_add'] = array(
@@ -466,10 +467,11 @@ function commerce_fulfillment_manipulate_shipment_form_submit(&$form, &$form_sta
 
     if($count == 0) {
       $shipment[$shipment_id]->package_num[] = $package_id;
+      drupal_set_message(t('Package @argument added to Shipment @shipment_id.', array('@argument' => $arg, '@shipment_id' => $shipment_id)));
       $shipment[$shipment_id]->save('commerce_fulfillment_shipment', $shipment);
     }
     else{
-      drupal_set_message('Package ' . $arg . ' is already in Shipment ' . $shipment_id . '.');
+        drupal_set_message(t('Package @argument is already in Shipment @shipment_id.', array('@argument' => $arg, '@shipment_id' => $shipment_id)), 'error');
     }
   }
   elseif($form_state['values']['commerce_fulfillment_radios'] == 1) {
@@ -479,18 +481,18 @@ function commerce_fulfillment_manipulate_shipment_form_submit(&$form, &$form_sta
 
       if ($shipment[$shipment_id]->package_num[$counting] == $package_id) {
         $shipment[$shipment_id]->package_num[$counting] = NULL;
-        $shipment[$shipment_id]->save('commerce_fulfillment_shipment', $shipment);
+        drupal_set_message(t('Package @argument deleted from Shipment @shipment_id.', array('@argument' => $arg, '@shipment_id' => $shipment_id)));
         $success_count++;
       }
     }
-
+    $shipment[$shipment_id]->save('commerce_fulfillment_shipment', $shipment);
     if($success_count == 0){
-      drupal_set_message('Package ' . $arg . ' was not found in Shipment ' . $shipment_id . '.');
+      drupal_set_message(t('Package @argument was not found in Shipment @shipment_id.', array('@argument' => $arg, '@shipment_id' => $shipment_id)), 'error');
     }
   }
   elseif($form_state['values']['commerce_fulfillment_radios'] == 2){
     $shipment[$shipment_id]->delete();
-    drupal_set_message('Shipment ' . $shipment_id . ' deleted.');
+    drupal_set_message(t('Shipment @shipment_id deleted.', array('@shipment_id' => $shipment_id)));
   }
 }
 
