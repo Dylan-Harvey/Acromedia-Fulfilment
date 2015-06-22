@@ -1,17 +1,17 @@
 <?php
 /**
- * Tests the functionality of the Commerce_Fulfilment Pages
+ * Tests the functionality of the Commerce_fulfillment Pages
  */
-//@TODO change naming to be for commerce fulfilment
+//@TODO change naming to be for commerce fulfillment
 class SimpletestExampleTestCase extends DrupalWebTestCase {
   protected $admin_user;
 
-  //@TODO - fulfilment, one "l" or two.......
+  //@TODO - fulfillment, one "l" or two.......
   //Tells the SimpleTest interface about our test in order to be able to run it
   public static function getInfo() {
     return array(
-      'name' => 'commerce_fulfilment_test1',
-      'description' => 'Ensure that the commerce_fulfilment modules pages function properly.',
+      'name' => 'commerce_fulfillment_test1',
+      'description' => 'Ensure that the commerce_fulfillment modules pages function properly.',
       'group' => 'commerce_fufillment_tests',
     );
   }
@@ -19,7 +19,7 @@ class SimpletestExampleTestCase extends DrupalWebTestCase {
   //Set up any requirements needed to run test, we will need a user with admin permissions
   public function setUp() {
 
-    parent::setUp('commerce_fulfilment');
+    parent::setUp('commerce_fulfillment');
     //Create an admin permission
     $permissions = array(
       'access administration pages',
@@ -30,12 +30,12 @@ class SimpletestExampleTestCase extends DrupalWebTestCase {
     $this->admin_user = $this->drupalCreateUser($permissions);
   }
 
-  public function testcommerce_fulfilment_menu(){
+  public function testcommerce_fulfillment_menu(){
     //Log user in
     $this->drupalLogin($this->admin_user);
 
     //Test base page(Packages page)
-    $this->drupalGet('admin/commerce/manage-orders/commerce_fulfilment');
+    $this->drupalGet('admin/commerce/manage-orders/commerce_fulfillment');
     $this->assertResponse('200');
 
     //Test admin page
@@ -48,15 +48,15 @@ class SimpletestExampleTestCase extends DrupalWebTestCase {
     $this->assertResponse('200');
   }
 
-  public function testcommerce_fulfilment_packagesentity() {
+  public function testcommerce_fulfillment_packagesentity() {
     // Create 10 entities.
     for ($i = 1; $i <= 10; $i++) {
       $edit[$i]['package_id'] = $this->$i;
-      $edit[$i]['commerce_fulfilment_text[und][0][value]'] = $this->$i;
+      $edit[$i]['commerce_fulfillment_text[und][0][value]'] = $this->$i;
 
       //@TODO - again I think this depends on an order being present that may not exist?
       //Check that each entity has been created
-      $this->drupalGet('orders/actions/manage-orders/commerce_fulfilment/2/orders' . $i);
+      $this->drupalGet('orders/actions/manage-orders/commerce_fulfillment/2/orders' . $i);
     }
   }
 }
