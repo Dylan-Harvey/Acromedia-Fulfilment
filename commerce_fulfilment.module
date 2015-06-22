@@ -113,7 +113,7 @@ function commerce_fulfilment_views_default_views() {
 function commerce_fulfilment_entity_info(){
   $info = array();
   $info['commerce_fulfilment_package'] = array(
-    'label' => t('commerce_fulfilment_package'),
+    'label' => t('Commerce Fulfilment Package'),
     'base table' => 'commerce_fulfilment_packages',
     'entity keys' => array(
       'id' => 'package_id'
@@ -124,7 +124,7 @@ function commerce_fulfilment_entity_info(){
     'module'=>'commerce_fulfilment',
   );
   $info['commerce_fulfilment_shipment'] = array(
-    'label' => t('commerce_fulfilment_shipment'),
+    'label' => t('Commerce Fulfilment Shipment'),
     'base table' => 'commerce_fulfilment_shipments',
     'entity keys' => array(
       'id' => 'shipment_id',
@@ -328,12 +328,12 @@ function commerce_fulfilment_manipulate_package_form_submit($form, &$form_state)
       $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
       if ($line_item->line_item_id->value() == $argument) {
         unset($package_wrapper->commerce_fulfilment_line_items[$count]);
-        $package_wrapper->save();
         drupal_set_message('Product ' . $argument . ' was removed from Package ' . $package_id[0] . '.');
         $success_count++;
       }
       $count++;
     }
+    $package_wrapper->save();
     if($success_count == 0){
       drupal_set_message('Product ' . $argument . ' was not found in Package ' . $package_id[0] . '.');
     }
@@ -341,7 +341,7 @@ function commerce_fulfilment_manipulate_package_form_submit($form, &$form_state)
   //delete package
   elseif($form_state['values']['commerce_fulfilment_radios']==2){
     $package[$package_id[0]]->delete();
-    drupal_set_message('Package ' . $package_id[0] . 'was deleted');
+    drupal_set_message('Package ' . $package_id[0] . ' deleted');
   }
 }
 /**
@@ -356,15 +356,13 @@ function commerce_fulfilment_manipulate_shipment_form_builder($form, &$form_stat
   $options = array(0 => t('Add Package'),1 => t('Remove Package'), 2 => t('Delete Shipment'));
   $shipment_id = $args[0];
   $shipment = entity_load('commerce_fulfilment_shipment', FALSE, array('shipment_id'=>$shipment_id));
-//    dpm($shipment);
   $order_id = $shipment[$shipment_id]->order_num;
-  $package_arr['und'] = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
-  //dpm($package_arr);
+  $package_arr = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
   $form['commerce_fulfilment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
   );
-  //dpm($package_arr);
+
   $form['commerce_fulfilment_shipment_id'] = array(
     '#type' => 'hidden',
     '#value' => $shipment_id,
@@ -401,15 +399,15 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
 
   //loads an array of package entities in the shipment
   $order_id = $form_state['values']['commerce_fulfilment_order_id'];
-  $package_arr['und'] = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
+  $package_arr = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
   $package_id = (int)$form_state['values']['commerce_fulfilment_package'];
 
   //gets the argument to add/remove from the shipment
   $arg = commerce_fulfilment_get_package_array($package_arr , $package_id);
 
   //checks if there is a package with the argument ID
-  $package = $package_arr['und'][$arg];
-  $package_ids = $shipment[$shipment_id]->package_num['und'];
+  $package = $package_arr[$arg];
+  $package_ids = $shipment[$shipment_id]->package_num;
   $package_id = $package->package_id;
 
   if($form_state['values']['commerce_fulfilment_radios'] == 0 ) {
@@ -422,7 +420,7 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
       }
     }
     if($count == 0) {
-      $shipment[$shipment_id]->package_num['und'][] = $package_id;
+      $shipment[$shipment_id]->package_num[] = $package_id;
       $shipment[$shipment_id]->save('commerce_fulfilment_shipment', $shipment);
     }
     else{
@@ -433,8 +431,8 @@ function commerce_fulfilment_manipulate_shipment_form_submit(&$form, &$form_stat
     $success_count = 0;
     for($counting = count($package_ids)-1; $counting>=0; $counting--) {
 
-      if ($shipment[$shipment_id]->package_num['und'][$counting] == $package_id) {
-        $shipment[$shipment_id]->package_num['und'][$counting] = NULL;
+      if ($shipment[$shipment_id]->package_num[$counting] == $package_id) {
+        $shipment[$shipment_id]->package_num[$counting] = NULL;
         $shipment[$shipment_id]->save('commerce_fulfilment_shipment', $shipment);
         $success_count++;
       }
