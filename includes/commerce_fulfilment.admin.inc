@@ -1,20 +1,23 @@
 <?php
+
 /**
- *
+ * @param $form
+ * @param $form_state
  * @return array
  * Implements hook_form
  * Creates an admin page form
  * Will use this data to print packing slips and shipping labels
  */
 function commerce_fulfilment_admin_form($form, &$form_state){
+
   $form = array();
+
 //  $form['#tree'] = TRUE;
   $form['commerce_fulfilment_title'] = array(
     '#markup' => '<h2>Admin Page</h2>'
   );
 
   //Creates seperate information fields
-
   $form['commerce_fulfilment_company_information']=array(
     '#type'=>'fieldset',
     '#title'=>t("Enter your company's information below"),
@@ -24,7 +27,6 @@ function commerce_fulfilment_admin_form($form, &$form_state){
   );
 
   //Textfields
-
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_company'] = array(
     '#type'=>'textfield',
     '#title'=>t('Company name:'),
@@ -43,6 +45,7 @@ function commerce_fulfilment_admin_form($form, &$form_state){
     '#default_value' => variable_get('commerce_fulfilment_phone', NULL),
     '#required' => TRUE,
   );
+
   if(!isset($form_state['num_boxtypes'])){
     $form_state['num_boxtypes'] = 1;
   }
@@ -65,7 +68,6 @@ function commerce_fulfilment_admin_form($form, &$form_state){
   );
 
   //Allows user to upload company logo
-
   $form['#attributes']['enctype'] = 'multipart/form-data';
 
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_logo']=array(
@@ -76,21 +78,29 @@ function commerce_fulfilment_admin_form($form, &$form_state){
   );
   $form = system_settings_form($form);
   $form['#submit'][] = 'commerce_fulfilment_admin_form_submit';
+
   return $form;
 }
+
 /**
+ * @param $form
+ * @param $form_state
  * Implements hook hook_form_validate
  * Validates information entered into the form
  */
 function commerce_fulfilment_admin_form_validate($form, &$form_state){
 }
+
 /**
+ *  @param $form
+ *  @param $form_state
  *  Implements hook hook_form_submit
  *  Does not override system_settings_form submit.
  *  Just handles submission of the package_type variable
  */
 
 function commerce_fulfilment_admin_form_submit($form, &$form_state){
+
   //gets global variable package_type
   $package_type = variable_get('commerce_fulfilment_package_type', NULL);
 
@@ -98,6 +108,7 @@ function commerce_fulfilment_admin_form_submit($form, &$form_state){
   if(!isset($package_type)) {
     $package_type = array();
   }
+
   //appends global variable package_type
   for($i = $form_state['num_boxtypes']-1; $i>=0; $i--) {
     $package_type[] = $form_state['values'][$i];
@@ -118,6 +129,7 @@ function commerce_fulfilment_admin_form_submit($form, &$form_state){
 function commerce_fulfilment_add_more_callback($form, &$form_state){
   return $form['commerce_fulfilment_company_information'];
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -130,6 +142,7 @@ function commerce_fulfilment_add_more_add_one($form, &$form_state) {
   $form_state['num_boxtypes']++;
   $form_state['rebuild'] = TRUE;
 }
+
 /**
  * @param $order
  * @return string
@@ -161,6 +174,7 @@ function commerce_fulfilment_package_content($order){
     foreach($package_wrapper->commerce_fulfilment_line_items->value() as $line_item){
       $line_items[] = $line_item;
     }
+
     //outputs each line_item that are in the specific package
     foreach ($line_items as $line_item) {
       $output .= t('<p><strong>Product ID: </strong>' . $line_item->line_item_id
@@ -173,15 +187,20 @@ function commerce_fulfilment_package_content($order){
       array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
     $output .= drupal_render($get_form);
   }
+
   //outputs forms to create a package and to print the packing slip for the selected package
   $output.= t('</td></tr><tr>');
   $get_form = drupal_get_form('commerce_fulfilment_create_package_form', $order_id);
   $output .= t('<td>' . drupal_render($get_form) . '</td>');
+
   $get_form = drupal_get_form('commerce_fulfilment_packing_slip_form', $order_id);
   $output .= t('<td>' . drupal_render($get_form) . '</td>');
+
   $output .= t('</tr></table>');
+
   return $output;
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -197,6 +216,7 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order_id){
   $package_type = variable_get('commerce_fulfilment_package_type', array(0 => 'No Package Type set.'));
 
   $form = array();
+
   $form['commerce_fulfilment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
@@ -225,10 +245,12 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order_id){
  */
 function commerce_fulfilment_create_package_form_submit($form, &$form_state){
   $package_type = variable_get('commerce_fulfilment_package_type', array(0 => 'No Package Type set.'));
+
   //create an order entity wrapper
   $order_id = $form_state['values']['commerce_fulfilment_order_id'];
   $order = commerce_order_load($order_id);
   $order_wrapper= entity_metadata_wrapper('commerce_order', $order);
+
   //create a package entity wrapper
   $profile_id = $order_wrapper->commerce_customer_billing->profile_id->value();
   $profile = commerce_customer_profile_load($profile_id);
@@ -265,6 +287,7 @@ function commerce_fulfilment_create_package_form_submit($form, &$form_state){
  */
 function commerce_fulfilment_packing_slip_form($form, $form_state, $order_id){
   $package_arr = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
+
   $form = array();
   $form['commerce_fulfilment_order_id'] = array(
     '#type' => 'hidden',
@@ -310,19 +333,24 @@ function commerce_fulfilment_packing_slip_content($package_id){
   $packages = entity_load('commerce_fulfilment_package', FALSE, array('order_id' => $order_id));
   $products = $package_wrapper->commerce_fulfilment_line_items->value();
   $count = 0;
+
   foreach($packages as $package){
     $count++;
   }
   $image = variable_get('commerce_fulfilment_logo', NULL);
+
   if($image !== NULL) {
     $image_obj = file_load($image);
+
     if (isset($image_obj->uri)) {
       $image_obj_url = file_create_url($image_obj->uri);
     }
+
   }
   else {
     $image_obj_url = NULL;
   }
+
   $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
   $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
     . variable_get('commerce_fulfilment_company', NULL) . '</p>&emsp;'
@@ -332,7 +360,6 @@ function commerce_fulfilment_packing_slip_content($package_id){
 
   $output .= t('<tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
         <table cellpadding = "15" width = "700" >');
-
   $output .= t('<th align = "left"> Product Code:</th><th align = "left"> Quantity</th>
     <th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>');
 
@@ -351,12 +378,14 @@ function commerce_fulfilment_packing_slip_content($package_id){
       $prices[0] . ' ' . $product_wrapper->commerce_unit_price->currency_code->value() . '</td><td>' . $prices[1] . ' '
       . $product_wrapper->commerce_total->currency_code->value() . '</td></tr>');
   }
+
   $output .= t('</table></td></tr>');
   $output .= t('<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_wrapper->package_id->value()
     . '<br><strong>Package:</strong> 1 of ' . $count . '</td>');
   $output.= t('</tr></table>');
   print $output;
 }
+
 /**
  * @param $order
  * @return string
@@ -373,6 +402,7 @@ function commerce_fulfilment_shipment_content($order) {
   $shipments = entity_load('commerce_fulfilment_shipment', FALSE, array('order_num'=>$order_id));
 
   $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
+
   foreach ($packages as $package) {
     $package_wrapper = entity_metadata_wrapper('commerce_fulfilment_package', $package);
     $package_id = $package_wrapper->package_id->value();
@@ -392,6 +422,7 @@ function commerce_fulfilment_shipment_content($order) {
     }
   }
   $output .= t('</td><td style = vertical-align:top><h2>Created Shipments for This Order:</h2>');
+
   foreach ($shipments as $shipment) {
     $shipment_wrapper = entity_metadata_wrapper('commerce_fulfilment_shipment', $shipment);
     $shipment_id = $shipment_wrapper->shipment_id->value();
@@ -405,8 +436,11 @@ function commerce_fulfilment_shipment_content($order) {
 
     $output .= t('<h4>&emsp;Packages in Shipment:</h4>');
     $package_ids = $shipment_wrapper->package_num->value();
+
     if($package_ids !== NULL) {
+
       foreach ($package_ids as $package_id) {
+
         if ($package_id !== NULL) {
           $output .= t('<p>&emsp;&emsp;<strong>Package ID: </strong>' . $package_id
             . '</p>');
@@ -420,6 +454,7 @@ function commerce_fulfilment_shipment_content($order) {
   $output .= t('</td></tr><tr><td>');
   $get_form = drupal_get_form('commerce_fulfilment_create_shipment_form', $order_id);
   $output .= drupal_render($get_form) . '</td>';
+
   $get_form = drupal_get_form('commerce_fulfilment_shipping_label_print_form', $order_id);
   $output .= t('<td>' . drupal_render($get_form) . '</td></tr></table>');
 
@@ -482,8 +517,10 @@ function commerce_fulfilment_shipping_label_content($shipment_id){
   $shipment_arr = entity_load('commerce_fulfilment_shipment', FALSE, array('shipment_id' => $shipment_id));
   $shipment = $shipment_arr[$shipment_id];
   $image = variable_get('commerce_fulfilment_logo', NULL);
+
   if($image !== NULL) {
     $image_obj = file_load($image);
+
     if (isset($image_obj->uri)) {
       $image_obj_url = file_create_url($image_obj->uri);
     }
@@ -506,6 +543,7 @@ function commerce_fulfilment_shipping_label_content($shipment_id){
     . $shipment->method['method'] . '<br>' . '</tr></table>');
   print $output;
 }
+
 /**
  * @param $shipments
  * @param bool $index
@@ -519,17 +557,19 @@ function commerce_fulfilment_get_shipment_array($shipments, $index = FALSE) {
   $count = 0;
 
   //Creates an array of package id's for the select box.
-
   foreach ($shipments as $shipment) {
     $shipment_wrapper = entity_metadata_wrapper('commerce_fulfilment_shipment', $shipment);
     $shipment_id[$count] = $shipment_wrapper->shipment_id->value();
     $count++;
   }
+
   if($index !== FALSE && is_int($index) && $index <= count($shipment_id)) {
     return $shipment_id[$index];
   }
+
   return $shipment_id;
 }
+
 /**
  * @param $packages
  * @param bool $index
@@ -546,9 +586,11 @@ function commerce_fulfilment_get_package_array($packages, $index = FALSE){
     $package_id[$count] = $package_wrapper->package_id->value();
     $count++;
   }
+
   if($index !== FALSE && is_int($index) && $index <= count($package_id)) {
     return $package_id[$index];
   }
+
   return $package_id;
 }
 
@@ -585,6 +627,7 @@ function commerce_fulfilment_create_shipment_form($form, &$form_state,$order_id)
     '#type' => 'submit',
     '#value' => t('Create Shipment')
   );
+
   return $form;
 }
 
@@ -615,5 +658,6 @@ function commerce_fulfilment_create_shipment_form_submit(&$form, &$form_state){
     ),
     'tracking_number' => $form_state['values']['commerce_fulfilment_tracking_number'],
   ));
+
   $entity->save('commerce_fulfilment_shipment', $entity);
 }
