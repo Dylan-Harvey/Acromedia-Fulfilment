@@ -28,19 +28,19 @@ function commerce_fulfilment_admin_form($form, &$form_state){
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_company'] = array(
     '#type'=>'textfield',
     '#title'=>t('Company name:'),
-    '#default_value' => variable_get('commerce_fulfilment_company'),
+    '#default_value' => variable_get('commerce_fulfilment_company', NULL),
     '#required' => TRUE,
   );
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_address'] = array(
     '#type'=>'textfield',
     '#title'=>t('Address:'),
-    '#default_value' => variable_get('commerce_fulfilment_address'),
+    '#default_value' => variable_get('commerce_fulfilment_address', NULL),
     '#required' => TRUE,
   );
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_phone'] = array(
     '#type'=>'textfield',
     '#title'=>t('Company Phone Number:'),
-    '#default_value' => variable_get('commerce_fulfilment_phone'),
+    '#default_value' => variable_get('commerce_fulfilment_phone', NULL),
     '#required' => TRUE,
   );
   if(!isset($form_state['num_boxtypes'])){
@@ -71,7 +71,7 @@ function commerce_fulfilment_admin_form($form, &$form_state){
   $form['commerce_fulfilment_company_information']['commerce_fulfilment_logo']=array(
     '#type'=>'managed_file',
     '#title'=>t('Upload your company logo:'),
-    '#default_value' => variable_get('commerce_fulfilment_logo'),
+    '#default_value' => variable_get('commerce_fulfilment_logo', NULL),
     '#upload_location' => 'public://logo/'
   );
   $form = system_settings_form($form);
@@ -92,7 +92,7 @@ function commerce_fulfilment_admin_form_validate($form, &$form_state){
 
 function commerce_fulfilment_admin_form_submit($form, &$form_state){
   //gets global variable package_type
-  $package_type = variable_get('commerce_fulfilment_package_type');
+  $package_type = variable_get('commerce_fulfilment_package_type', NULL);
 
   //initializes global variable package_type
   if(!isset($package_type)) {
@@ -223,7 +223,7 @@ function commerce_fulfilment_create_package_form($form, &$form_state,$order_id){
  * implements hook_form_submit
  */
 function commerce_fulfilment_create_package_form_submit($form, &$form_state){
-  $package_type = variable_get('commerce_fulfilment_package_type');
+  $package_type = variable_get('commerce_fulfilment_package_type', NULL);
   //create an order entity wrapper
   $order_id = $form_state['values']['commerce_fulfilment_order_id'];
   $order = commerce_order_load($order_id);
