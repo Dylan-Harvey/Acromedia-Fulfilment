@@ -671,6 +671,6 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
     ),
     'tracking_number' => $form_state['values']['commerce_fulfillment_tracking_number'],
   ));
-  dpm($entity);
+
   $entity->save('commerce_fulfillment_shipment', $entity);
 }
