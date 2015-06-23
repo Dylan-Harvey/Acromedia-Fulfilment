@@ -152,6 +152,7 @@ function commerce_fulfillment_entity_info(){
  */
 function commerce_fulfillment_enable() {
   commerce_fulfillment_configure_package_type();
+  commerce_fulfillment_configure_shipment_type();
 }
 
 /**
@@ -191,6 +192,62 @@ function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillme
       'widget' => array(
         'type' => 'commerce_line_item_manager',
         'weight' => -10,
+      ),
+      'display' => array(),
+    );
+
+    // Set the default display formatters for various view modes.
+    foreach (array('default', 'customer', 'administrator') as $view_mode) {
+      $instance['display'][$view_mode] = array(
+        'label' => 'hidden',
+        'type' => 'commerce_line_item_reference_view',
+        'weight' => -10,
+      );
+    }
+
+    field_create_instance($instance);
+  }
+}
+/**
+ * @param $type
+ *
+ * Ensures the line item field is present on the default order bundle.
+ */
+function commerce_fulfillment_configure_shipment_type($type = 'commerce_fulfillment_shipment') {
+
+  // Look for or add a line item reference field to the order type.
+  $field_name = 'commerce_fulfillment_packages';
+
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_fulfillment_shipment', $field_name, $type);
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'entityreference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'entity_types' => array('commerce_fulfillment_shipment'),
+      'settings' => array(
+        'target_type' => 'commerce_fulfillment_package',
+        'handler_settings' => array('target_bundles'=> NULL),
+      ),
+      'translatable' => FALSE,
+      'locked' => TRUE,
+    );
+    $field = field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'commerce_fulfillment_shipment',
+      'bundle' => $type,
+      'label' => t('Packages'),
+      'settings' => array(
+        'target_type' => 'commerce_fulfillment_package',
+        'handler_settings' => array('target_bundles'=> NULL),
       ),
       'display' => array(),
     );
@@ -352,30 +409,31 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   return $form;
 
 }
-function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) {
+function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state) {
 
-  if (isset($form_state['values']['commerce_fulfilment_shipment_id'])) {
+  if (isset($form_state['values']['commerce_fulfillment_shipment_id'])) {
 
     //loads shipment
     $shipment_id = $form_state['values']['commerce_fulfillment_shipment_id'];
     $shipment = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id' => $shipment_id));
-
+    dpm($shipment[$shipment_id]);
     //loads an array of package entities in the shipment
     $package_arr = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $form_state['values']['commerce_fulfillment_order_id']));
 
     //gets the argument to add/remove from the shipment
     $argument = (int)commerce_fulfillment_get_package_array($package_arr, (int)$form_state['values']['commerce_fulfillment_package']);
 
-    //checks if there is a package with the argument ID
-    $p_array = $shipment[$shipment_id]->package_num;
+
 
     //sets the wrapper and field variable to what we need if we are manipulating a shipment
-    $wrapper = entity_metadata_wrapper('commerce_fulfilment_shipment', $shipment[$shipment_id]);
-    $field = package_num;
+    $wrapper = entity_metadata_wrapper('commerce_fulfillment_shipment', $shipment[$shipment_id]);
+    $field = 'commerce_fulfillment_packages';
     $type2 = 'Shipment';
     $id = $shipment_id;
     $type1 = 'Package';
 
+    //checks if there is a package with the argument ID
+    $p_array = $wrapper->commerce_fulfillment_packages->value();
   }
   else {
 
@@ -386,7 +444,7 @@ function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) 
 
     //sets the wrapper and field variable to what we need if we are manipulating a shipment
     $wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package[$package_id[0]]);
-    $field = commerce_fulfilment_line_items;
+    $field = 'commerce_fulfillment_line_items';
     $type2 = 'Package';
     $id = $package_id[0];
     $type1 = 'Product';
@@ -407,9 +465,9 @@ function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) 
     if (isset($p_array)) {
 
       foreach ($p_array as $p_id) {
-
+        dpm($p_id);
         if (isset($p_id->type)) {
-          $line_item = entity_metadata_wrapper('commerce_line_items', $p_id);
+          $line_item = entity_metadata_wrapper('commerce_line_item', $p_id);
           $p_id = $line_item->line_item_id->value();
         }
 
@@ -421,7 +479,26 @@ function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) 
     }
 
     if ($count == 0) {
-      $wrapper->{$field}[] = $argument;
+      if(isset($wrapper->{$field}->value()[0])){
+        if($type2 == 'Shipment'){
+          $id2 = $argument;
+          $argument = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $argument));
+          $argument_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $argument[$id2]);
+          $argument = $argument[$argument_wrapper->package_id->value()];
+        }
+        $wrapper->{$field}[] = $argument;
+      }
+      else{
+
+        if($type2 == 'Shipment'){
+          $id2 = $argument;
+          $argument = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $argument));
+          $argument_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $argument[$id2]);
+          $argument = $argument[$argument_wrapper->package_id->value()];
+        }
+        $wrapper->{$field}[] = $argument;
+      }
+
       $wrapper->save();
     }
   }
@@ -432,10 +509,9 @@ function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) 
     $success_count = 0;
 
     foreach ($p_array as $index) {
-      if(isset($index->type)) {
-        $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+      if($index->type == 'product') {
+        $line_item = entity_metadata_wrapper('commerce_line_item', $index);
         $index = $line_item->line_item_id->value();
-
         $type1 = 'Product';
       }
       else{
@@ -443,14 +519,14 @@ function commerce_fulfilment_manipulate_entity_form_submit($form, &$form_state) 
         $type1 = 'Package';
       }
       if ($index == $argument) {
-        unset($wrapper->$field[$count]);
+        unset($wrapper->{$field}[$count]);
+        $wrapper->save();
+        
         drupal_set_message(t('@type1 @argument deleted from @type2 @id.', array('@type1' => $type1, '@type2' => $type2, '@argument' => $argument, '@id' => $id)));
         $success_count++;
       }
       $count++;
     }
-
-    $wrapper->save();
 
     if($success_count == 0){
       drupal_set_message(t('@type1 @argument not found in @type2 @id.', array('@type1' => $type1, '@type2' => $type2, '@argument' => $argument, '@id' => $id)));
