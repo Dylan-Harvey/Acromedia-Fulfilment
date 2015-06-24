@@ -310,7 +310,7 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
     '#title' => t('Select Package:'),
-    '#options' => commerce_fulfillment_get_package_array($package_arr),
+    '#options' => commerce_fulfillment_get_entity_array($order_id, FALSE, 'in_order'),
   );
   $form['commerce_fulfillment_print'] = array(
     '#type' => 'submit',
@@ -328,8 +328,7 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
  */
 function commerce_fulfillment_packing_slip_form_submit($form, &$form_state){
   $package_arr = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $form_state['values']['commerce_fulfillment_order_id']));
-  $argument = commerce_fulfillment_get_package_array($package_arr, (int)$form_state['values']['commerce_fulfillment_package']);
-
+  $argument = commerce_fulfillment_get_entity_array($form_state['values']['commerce_fulfillment_order_id'], (int)$form_state['values']['commerce_fulfillment_package'], 'in_order');
   $form_state['redirect'] = 'admin/commerce/orders/' . $form_state['values']['commerce_fulfillment_order_id'] .'/commerce_fulfillment/' . $argument . '/packing_slip';
 }
 
@@ -497,7 +496,7 @@ function commerce_fulfillment_shipping_label_print_form($form, &$form_state, $or
   $form['commerce_fulfillment_shipment'] = array(
     '#type' => 'select',
     '#title' => t('Select Shipment:'),
-    '#options' => commerce_fulfillment_get_shipment_array($shipment_arr),
+    '#options' => commerce_fulfillment_get_entity_array($order_id, FALSE, 'in_order'),
   );
   $form['commerce_fulfillment_print'] = array(
     '#type' => 'submit',
@@ -514,7 +513,7 @@ function commerce_fulfillment_shipping_label_print_form($form, &$form_state, $or
 function commerce_fulfillment_shipping_label_print_form_submit($form, &$form_state){
   $order_id = $form_state['values']['commerce_fulfillment_order_id'];
   $shipment_arr = entity_load('commerce_fulfillment_shipment', FALSE, array('order_num' => $order_id));
-  $argument = commerce_fulfillment_get_shipment_array($shipment_arr, (int)$form_state['values']['commerce_fulfillment_shipment']);
+  $argument = commerce_fulfillment_get_entity_array($order_id, (int)$form_state['values']['commerce_fulfillment_shipment'], 'in_order');
   $form_state['redirect'] = 'admin/commerce/orders/' . $order_id .'/commerce_fulfillment/' . $argument . '/shipping_label';
 }
 
