@@ -302,11 +302,12 @@ function commerce_fulfillment_forms($form_id, $args){
  * implements hook hook_form
  * Adds the select box and add button to the packages interface.
  */
-function commerce_fulfillment_manipulate_package_form_builder($form, &$form_state, $args){
+function commerce_fulfillment_manipulate_package_form_builder($form, &$form_state, $args)
+{
   $package_id = $args[0];
   $order_id = $args[1];
   $form = array();
-  $options = array(0 => t('Add Product'),1 => t('Remove Product'), 2 => t('Delete Package'));
+  $options = array(0 => t('Add Product'), 1 => t('Remove Product'), 2 => t('Delete Package'));
 
   $form['commerce_fulfillment_package_id'] = array(
     '#type' => 'hidden',
@@ -319,11 +320,11 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
   $form['commerce_fulfillment_product'] = array(
     '#type' => 'select',
     '#title' => t('Select Product to Add: '),
-    '#options' => commerce_fulfillment_get_product_array($order_id),
+    '#options' => commerce_fulfillment_get_array($order_id, 'false', 'commerce_order'),
   );
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
-    '#title'=>t('Options'),
+    '#title' => t('Options'),
     '#default_value' => $options[0],
     '#options' => $options
   );
@@ -336,34 +337,6 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
   return $form;
 
 }
-
-/**
- * @param $order_id
- * @param $product
- *
- * @return array
- *
- * loads an array of line item id's.
- * If there is no index chosen, Returns the array.
- * If there is an index chosen. Returns the data in the array at that index.
- */
-function commerce_fulfillment_get_product_array($order_id, $product = FALSE){
-  $order = commerce_order_load($order_id);
-  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-  $line_ids = array();
-
-  foreach($order_wrapper->commerce_line_items->value() as $index => $line_item){
-    $line_ids[] = $line_item->line_item_id;
-  }
-
-  if($product !== FALSE && is_int($product) && $product <= count($line_ids)) {
-    return $line_ids[$product];
-  }
-
-  return $line_ids;
-
-}
-
 /**
  * @param $form
  * @param $form_state
@@ -378,8 +351,7 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   $shipment_id = $args[0];
   $shipment = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id'=>$shipment_id));
 
-  $order_id = $shipment[$shipment_id]->order_num;
-  $package_arr = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
+  $order_id = $shipment[$shipment_id]->order_id;
 
   $form['commerce_fulfillment_order_id'] = array(
     '#type' => 'hidden',
@@ -392,7 +364,7 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
     '#title' => t('Select Package: '),
-    '#options' => commerce_fulfillment_get_package_array($package_arr),
+    '#options' => commerce_fulfillment_get_array($order_id, 'false', 'package_in_order'),
   );
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
@@ -417,13 +389,8 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
     $shipment_id = $form_state['values']['commerce_fulfillment_shipment_id'];
     $shipment = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id' => $shipment_id));
 
-    //loads an array of package entities in the shipment
-    $package_arr = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $form_state['values']['commerce_fulfillment_order_id']));
-
     //gets the argument to add/remove from the shipment
-    $argument = (int)commerce_fulfillment_get_package_array($package_arr, (int)$form_state['values']['commerce_fulfillment_package']);
-
-
+    $argument = commerce_fulfillment_get_array($form_state['values']['commerce_fulfillment_order_id'], $form_state['values']['commerce_fulfillment_package'], 'package_in_order');
 
     //sets the wrapper and field variable to what we need if we are manipulating a shipment
     $wrapper = entity_metadata_wrapper('commerce_fulfillment_shipment', $shipment[$shipment_id]);
@@ -455,7 +422,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
       $p_array[] = $line_item;
     }
 
-    $argument = commerce_fulfillment_get_product_array($order_id, (int)$form_state['values']['commerce_fulfillment_product']);
+    $argument = commerce_fulfillment_get_array($order_id, $form_state['values']['commerce_fulfillment_product'], 'commerce_order');
 
   }
 
@@ -503,7 +470,6 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
       }
 
       $wrapper->save();
-      dpm($shipment[$shipment_id]);
     }
   }
 
@@ -536,7 +502,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
     }
 
     if($success_count == 0){
-      dpm($shipment[$shipment_id]);
+
       drupal_set_message(t('@type1 @argument not found in @type2 @id.', array('@type1' => $type1, '@type2' => $type2, '@argument' => $argument, '@id' => $id)));
     }
   }
@@ -548,6 +514,77 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
   }
 }
 
+/**
+ * @param $order_id
+ * @param bool $index
+ * @param $type
+ * @return array
+ *
+ * Creates an array of the necessary id type.
+ * If there was an index chosen, returns the value of that index.
+ * Otherwise just returns the array.
+ */
+function commerce_fulfillment_get_array($order_id, $index = 'false', $type){
+
+  $id_array = array();
+  //creates an array of products in a commerce order. Returns selected product if one chosen.
+  if($type == 'commerce_order'){
+    $entity_array = array();
+    $entity_array[] = commerce_order_load($order_id);
+  }
+  //creates an array of products in a commerce order. Returns selected product if one chosen.
+  elseif($type == 'package_in_order'){
+    $entity_array = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
+
+    foreach($entity_array as $entity){
+      $entity = entity_metadata_wrapper('commerce_fulfillment_package', $entity);
+      $id_array[] = $entity->package_id->value();
+    }
+    if($index == 'false') {
+      return $id_array;
+    }
+      return $id_array[$index];
+  }
+  elseif($type == 'shipment_in_order'){
+    $entity_array = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id' => $order_id));
+    foreach($entity_array as $entity){
+      $entity = entity_metadata_wrapper('commerce_fulfillment_shipment', $entity);
+      $id_array[] = $entity->shipment_id->value();
+    }
+    if($index == 'false') {
+      return $id_array;
+    }
+    else {
+      return $id_array[$index];
+    }
+  }
+  else {
+    $entity_array = entity_load($type, FALSE, array('order_id' => $order_id));
+  }
+
+  foreach ($entity_array as $entity) {
+    $entity = entity_metadata_wrapper($type, $entity);
+
+    if (isset($entity->commerce_line_items)) {
+
+      foreach ($entity->commerce_line_items->value() as $line_item) {
+        $id_array[] = $line_item->line_item_id;
+      }
+    }
+    elseif (isset($entity->commerce_fulfillment_line_items)) {
+
+      foreach ($entity->commerce_fulfillment_line_items->value() as $line_item) {
+        $id_array[] = $line_item->line_item_id;
+      }
+    }
+  }
+
+  if ($index == 'false') {
+    return $id_array;
+  }
+  return $id_array[$index];
+
+}
 class shipmentEntityController extends EntityAPIController{
 }
 

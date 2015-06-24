@@ -47,7 +47,7 @@ function commerce_fulfillment_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'order_num' => array(
+      'order_id' => array(
         'type' => 'varchar',
         'length' => '255',
         'not null'=> TRUE,
