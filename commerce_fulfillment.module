@@ -163,7 +163,7 @@ function commerce_fulfillment_enable() {
 function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillment_package') {
 
   // Look for or add a line item reference field to the order type.
-  $field_name = 'commerce_fulfillment_line_items';
+  $field_name = 'commerce_line_items';
   commerce_activate_field($field_name);
   field_cache_clear();
 
@@ -319,7 +319,7 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
   $form['commerce_fulfillment_product'] = array(
     '#type' => 'select',
     '#title' => t('Select Product to Add: '),
-    '#options' => commerce_fulfillment_get_product_array($order_id),
+    '#options' => commerce_fulfillment_get_entity_array($order_id, $index = FALSE, 'commerce_order'),
   );
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
@@ -349,6 +349,7 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
  */
 function commerce_fulfillment_get_product_array($order_id, $product = FALSE){
   $order = commerce_order_load($order_id);
+  dpm($order);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
   $line_ids = array();
 
@@ -392,7 +393,7 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
     '#title' => t('Select Package: '),
-    '#options' => commerce_fulfillment_get_package_array($package_arr),
+    '#options' => commerce_fulfillment_get_entity_array($order_id, $index = FALSE, 'commerce_fulfillment_shipment'),
   );
   $form['commerce_fulfillment_radios'] = array(
     '#type' => 'radios',
@@ -421,9 +422,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
     $package_arr = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $form_state['values']['commerce_fulfillment_order_id']));
 
     //gets the argument to add/remove from the shipment
-    $argument = (int)commerce_fulfillment_get_package_array($package_arr, (int)$form_state['values']['commerce_fulfillment_package']);
-
-
+    $argument = commerce_fulfillment_get_entity_array($form_state['values']['commerce_fulfillment_order_id'], (int)$form_state['values']['commerce_fulfillment_package'], 'commerce_fulfillment_shipment');
 
     //sets the wrapper and field variable to what we need if we are manipulating a shipment
     $wrapper = entity_metadata_wrapper('commerce_fulfillment_shipment', $shipment[$shipment_id]);
@@ -455,7 +454,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
       $p_array[] = $line_item;
     }
 
-    $argument = commerce_fulfillment_get_product_array($order_id, (int)$form_state['values']['commerce_fulfillment_product']);
+    $argument = commerce_fulfillment_get_entity_array($order_id, (int)$form_state['values']['commerce_fulfillment_product'], 'commerce_order');
 
   }
 
@@ -548,6 +547,72 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
   }
 }
 
+/**
+ * @param $order_id
+ * @param bool $index
+ * @param $type
+ * @return array
+ *
+ * Creates an array of the necessary id type.
+ * If there was an index chosen, returns the value of that index.
+ * Otherwise just returns the array.
+ */
+function commerce_fulfillment_get_entity_array($order_id, $index = FALSE, $type){
+  $id_array = array();
+  $entity_array = entity_load($type, FALSE, array('order_id' => $order_id));
+
+  if($type == 'in_order'){
+
+    foreach($entity_array as $entity){
+
+      if(isset($entity->package_id)){
+        $type = 'commerce_fulfillment_package';
+        $field = 'package_id';
+      }
+      elseif(isset($entity->shipment_id)){
+        $type = 'commerce_fulfillment_shipment';
+        $field = 'shipment_id';
+      }
+      else{
+        return NULL;
+      }
+      $entity = entity_metadata_wrapper($type, $entity);
+      $id_array[] = $entity->$field->value();
+    }
+
+    if($index == FALSE) {
+      return $id_array;
+    }
+    else {
+      return $id_array[$index];
+    }
+  }
+  foreach($entity_array as $entity){
+    $entity = entity_metadata_wrapper($type, $entity);
+
+    if(isset($entity->commerce_line_items)){
+
+      foreach($entity->commerce_line_items->value() as $line_item){
+        $id_array[] = $line_item->line_item_id;
+      }
+    }
+
+    elseif(isset($entity->shipment_id)){
+
+      foreach($entity->commerce_fulfillment_packages as $package){
+        $id_array[] = $package->package_id;
+      }
+    }
+  }
+
+  if($index == FALSE){
+    return $id_array;
+  }
+
+  elseif($index == TRUE){
+    return $id_array[$index];
+  }
+}
 class shipmentEntityController extends EntityAPIController{
 }
 
