@@ -58,13 +58,6 @@ function commerce_fulfillment_schema() {
         'length' => '255',
         'not null' => TRUE,
       ),
-      'package_num' => array(
-        'description' => 'An array of the packages in the shipment.',
-        'type' => 'varchar',
-        'length' => '255',
-        'serialize' => TRUE,
-        'not null' => FALSE,
-      ),
       'dates' => array (
         'type' => 'varchar',
         'length' => '255',
