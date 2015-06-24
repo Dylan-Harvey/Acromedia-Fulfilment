@@ -448,14 +448,14 @@ function commerce_fulfillment_shipment_content($order) {
       ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>');
 
     $output .= t('<h4>&emsp;Packages in Shipment:</h4>');
-    $package_ids = $shipment_wrapper->package_num->value();
+    $packages = $shipment_wrapper->commerce_fulfillment_packages->value();
 
-    if($package_ids !== NULL) {
+    if($packages !== NULL) {
 
-      foreach ($package_ids as $package_id) {
-
-        if ($package_id !== NULL) {
-          $output .= t('<p>&emsp;&emsp;<strong>Package ID: </strong>' . $package_id
+      foreach ($packages as $package) {
+        $package = entity_metadata_wrapper('commerce_fulfillment_package', $package);
+        if ($package !== NULL) {
+          $output .= t('<p>&emsp;&emsp;<strong>Package ID: </strong>' . $package->package_id->value()
             . '</p>');
         }
       }
@@ -655,7 +655,6 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
   $entity = entity_create('commerce_fulfillment_shipment', array(
     'order_num' => $order->order_id,
     'status' => 'pending',
-    'packages' => '',
     'dates' => array(
       'created' => date('ymd'),
     ),
@@ -671,6 +670,5 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
     ),
     'tracking_number' => $form_state['values']['commerce_fulfillment_tracking_number'],
   ));
-
   $entity->save('commerce_fulfillment_shipment', $entity);
 }
