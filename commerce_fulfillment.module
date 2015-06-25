@@ -288,8 +288,26 @@ function commerce_fulfillment_action_info(){
   );
 }
 function commerce_fulfillment_remove_action(&$object, $context = array()){
+  $max = 0;
+  $index_array = array();
   $package_index = $context['package'];
-  $product_id = $object->line_item_id;
+  $order_id = $context ['order_id'];
+  $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
+  $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package));
+  $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package]);
+  foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
+    foreach ($object as $line_item) {
+      if ($index->line_item_id == $line_item->line_item_id) {
+        $index_array[] = $max;
+      }
+    }
+    $max++;
+  }
+
+  foreach ($index_array as $index) {
+    unset($package_wrapper->commerce_fulfillment_line_items[$index]);
+    $package_wrapper->save();
+  }
 
 }
 function commerce_fulfillment_remove_action_form($options){
@@ -310,6 +328,7 @@ function commerce_fulfillment_remove_action_form($options){
 }
 function commerce_fulfillment_remove_action_submit($form, &$form_state){
   $output['package'] = $form_state['values']['commerce_fulfillment_package'];
+  $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
   return $output;
 }
 function commerce_fulfillment_add_action(&$object, $context = array())
@@ -325,7 +344,7 @@ function commerce_fulfillment_add_action(&$object, $context = array())
     foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
 
       if ($index->line_item_id == $line_item->line_item_id) {
-        drupal_set_message(t('Product @product_id already in Package @package', array('@product_id' => $line_item->line_item_id, '@package' => $package)));
+        drupal_set_message(t('Product @product_id already in Package @package', array('@product_id' => $line_item->line_item_id, '@package' => $package)),'error');
         $count++;
       }
     }
