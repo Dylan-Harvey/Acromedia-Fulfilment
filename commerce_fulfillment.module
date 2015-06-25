@@ -273,6 +273,7 @@ function commerce_fulfillment_action_info(){
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
       'triggers' => array('any'),
+      'aggregate' => TRUE,
     ),
     'commerce_fulfillment_remove_action' => array(
       'type' => 'entity',
@@ -281,6 +282,7 @@ function commerce_fulfillment_action_info(){
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
       'triggers' => array('any'),
+      'aggregate' => TRUE,
     ),
 
   );
@@ -311,25 +313,35 @@ function commerce_fulfillment_remove_action_submit($form, &$form_state){
   $output['package'] = $form_state['values']['commerce_fulfillment_package'];
   return $output;
 }
-function commerce_fulfillment_add_action(&$object, $context = array()){
+function commerce_fulfillment_add_action(&$object, $context = array())
+{
+  dpm($object);
+  dpm($context);
   $package_index = $context['package'];
-  dpm($package_index);
   $order_id = $context ['order_id'];
-  $product_id = $object->line_item_id;
   $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
-  dpm($package);
   $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package));
-  dpm('yay');
-  dpm($package_entity);
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package]);
-  $package_wrapper->commerce_fulfillment_line_items[] = $product_id;
-  dpm('motherfucker');
+  foreach ($object as $line_item) {
+    $count = 0;
+
+    foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
+
+      if ($index->line_item_id == $line_item->line_item_id) {
+        drupal_set_message(t('Product @product_id already in Package @package', array('@product_id' => $line_item->line_item_id, '@package' => $package)));
+        $count++;
+      }
+    }
+
+    if($count == 0){
+      $package_wrapper->commerce_fulfillment_line_items[] = $line_item->line_item_id;
+    }
+  }
   $package_wrapper->save();
-  dpm('wow!');
 }
 function commerce_fulfillment_add_action_form($options){
-  dpm($options);
   $order_id = $options['view']->args[0];
+
   $form = array();
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
@@ -613,7 +625,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
 
 /**
  * @param $order_id
- * @param bool $index
+ * @param $index
  * @param $type
  * @return array
  *
@@ -632,6 +644,7 @@ function commerce_fulfillment_get_array($order_id, $index = 'false', $type){
   //creates an array of products in a commerce order. Returns selected product if one chosen.
   elseif($type == 'package_in_order'){
     $entity_array = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
+    dpm($entity_array);
 
     foreach($entity_array as $entity){
       $entity = entity_metadata_wrapper('commerce_fulfillment_package', $entity);

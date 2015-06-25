@@ -11,7 +11,6 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 
 /* Display: Defaults */
 $handler = $view->new_display('default', 'Defaults', 'default');
-$handler->display->display_options['use_ajax'] = TRUE;
 $handler->display->display_options['use_more_always'] = FALSE;
 $handler->display->display_options['access']['type'] = 'none';
 $handler->display->display_options['cache']['type'] = 'none';
@@ -72,58 +71,18 @@ $handler->display->display_options['style_options']['info'] = array(
 'separator' => '',
 ),
 );
-/* No results behavior: Global: Text area */
-$handler->display->display_options['empty']['area']['id'] = 'area';
-$handler->display->display_options['empty']['area']['table'] = 'views';
-$handler->display->display_options['empty']['area']['field'] = 'area';
-$handler->display->display_options['empty']['area']['label'] = 'Empty line item text.';
-$handler->display->display_options['empty']['area']['content'] = 'No line items found.';
-$handler->display->display_options['empty']['area']['format'] = 'plain_text';
 /* Relationship: Commerce Line Item: Order ID */
 $handler->display->display_options['relationships']['order_id']['id'] = 'order_id';
 $handler->display->display_options['relationships']['order_id']['table'] = 'commerce_line_item';
 $handler->display->display_options['relationships']['order_id']['field'] = 'order_id';
 $handler->display->display_options['relationships']['order_id']['required'] = TRUE;
-/* Field: Commerce Line Item: Line item ID */
-$handler->display->display_options['fields']['line_item_id']['id'] = 'line_item_id';
-$handler->display->display_options['fields']['line_item_id']['table'] = 'commerce_line_item';
-$handler->display->display_options['fields']['line_item_id']['field'] = 'line_item_id';
-$handler->display->display_options['fields']['line_item_id']['label'] = 'ID';
-/* Field: Commerce Line Item: Type */
-$handler->display->display_options['fields']['type']['id'] = 'type';
-$handler->display->display_options['fields']['type']['table'] = 'commerce_line_item';
-$handler->display->display_options['fields']['type']['field'] = 'type';
-$handler->display->display_options['fields']['type']['exclude'] = TRUE;
-/* Field: Commerce Line Item: Title */
-$handler->display->display_options['fields']['line_item_title']['id'] = 'line_item_title';
-$handler->display->display_options['fields']['line_item_title']['table'] = 'commerce_line_item';
-$handler->display->display_options['fields']['line_item_title']['field'] = 'line_item_title';
-/* Field: Commerce Line Item: Label */
-$handler->display->display_options['fields']['line_item_label']['id'] = 'line_item_label';
-$handler->display->display_options['fields']['line_item_label']['table'] = 'commerce_line_item';
-$handler->display->display_options['fields']['line_item_label']['field'] = 'line_item_label';
-$handler->display->display_options['fields']['line_item_label']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['line_item_label']['alter']['text'] = '([line_item_label])';
-/* Field: Commerce Line item: Unit price */
-$handler->display->display_options['fields']['commerce_unit_price']['id'] = 'commerce_unit_price';
-$handler->display->display_options['fields']['commerce_unit_price']['table'] = 'field_data_commerce_unit_price';
-$handler->display->display_options['fields']['commerce_unit_price']['field'] = 'commerce_unit_price';
-$handler->display->display_options['fields']['commerce_unit_price']['click_sort_column'] = 'amount';
-/* Field: Commerce Line Item: Quantity */
-$handler->display->display_options['fields']['quantity']['id'] = 'quantity';
-$handler->display->display_options['fields']['quantity']['table'] = 'commerce_line_item';
-$handler->display->display_options['fields']['quantity']['field'] = 'quantity';
-$handler->display->display_options['fields']['quantity']['precision'] = '0';
-/* Field: Commerce Line item: Total */
-$handler->display->display_options['fields']['commerce_total']['id'] = 'commerce_total';
-$handler->display->display_options['fields']['commerce_total']['table'] = 'field_data_commerce_total';
-$handler->display->display_options['fields']['commerce_total']['field'] = 'commerce_total';
-$handler->display->display_options['fields']['commerce_total']['click_sort_column'] = 'amount';
 /* Field: Bulk operations: Commerce Line Item */
 $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
 $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'commerce_line_item';
 $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
-$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '0';
+$handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
+$handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 1;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
@@ -193,6 +152,41 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
 'label' => '',
 ),
 );
+/* Field: Commerce Line Item: Line item ID */
+$handler->display->display_options['fields']['line_item_id']['id'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_id']['field'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['label'] = 'ID';
+/* Field: Commerce Line Item: Type */
+$handler->display->display_options['fields']['type']['id'] = 'type';
+$handler->display->display_options['fields']['type']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['type']['field'] = 'type';
+$handler->display->display_options['fields']['type']['exclude'] = TRUE;
+/* Field: Commerce Line Item: Title */
+$handler->display->display_options['fields']['line_item_title']['id'] = 'line_item_title';
+$handler->display->display_options['fields']['line_item_title']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_title']['field'] = 'line_item_title';
+/* Field: Commerce Line Item: Label */
+$handler->display->display_options['fields']['line_item_label']['id'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_label']['field'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['line_item_label']['alter']['text'] = '([line_item_label])';
+/* Field: Commerce Line item: Unit price */
+$handler->display->display_options['fields']['commerce_unit_price']['id'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['table'] = 'field_data_commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['field'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['click_sort_column'] = 'amount';
+/* Field: Commerce Line Item: Quantity */
+$handler->display->display_options['fields']['quantity']['id'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['quantity']['field'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['precision'] = '0';
+/* Field: Commerce Line item: Total */
+$handler->display->display_options['fields']['commerce_total']['id'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['table'] = 'field_data_commerce_total';
+$handler->display->display_options['fields']['commerce_total']['field'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['click_sort_column'] = 'amount';
 /* Sort criterion: Commerce Line Item: Line item ID */
 $handler->display->display_options['sorts']['line_item_id']['id'] = 'line_item_id';
 $handler->display->display_options['sorts']['line_item_id']['table'] = 'commerce_line_item';
