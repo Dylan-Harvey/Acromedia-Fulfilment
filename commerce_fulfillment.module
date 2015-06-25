@@ -288,27 +288,27 @@ function commerce_fulfillment_action_info(){
   );
 }
 function commerce_fulfillment_remove_action(&$object, $context = array()){
+  $max = 0;
+  $index_array = array();
   $package_index = $context['package'];
   $order_id = $context ['order_id'];
   $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
   $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package));
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package]);
-  foreach ($object as $line_item) {
-    $success_count = 0;
-    $count = 0;
-    foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
+  foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
+    foreach ($object as $line_item) {
       if ($index->line_item_id == $line_item->line_item_id) {
-        unset($package_wrapper->line_item_id[$count]);
-        $success_count++;
+        $index_array[] = $max;
       }
-      $count++;
     }
-
-    if($success_count == 0){
-      drupal_set_message(t('Product @line_item not found in Package @id.', array('@line_item' => $line_item->line_item_id, '@id' => $package)),'error');
-    }
+    $max++;
   }
-  $package_wrapper->save();
+
+  foreach ($index_array as $index) {
+    unset($package_wrapper->commerce_fulfillment_line_items[$index]);
+    $package_wrapper->save();
+  }
+
 }
 function commerce_fulfillment_remove_action_form($options){
 
