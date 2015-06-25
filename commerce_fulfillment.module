@@ -105,7 +105,7 @@ function commerce_fulfillment_views_default_views() {
   $files = file_scan_directory(drupal_get_path('module', 'commerce_fulfillment') . '/views', '/.*\.inc$/');
 
   foreach ($files as $filepath => $file) {
-    require $filepath;
+    include $filepath;
     if(isset($view)) {
       $views[$view->name] = $view;
     }
@@ -120,6 +120,7 @@ function commerce_fulfillment_views_default_views() {
  */
 function commerce_fulfillment_entity_info(){
   $info = array();
+
   $info['commerce_fulfillment_package'] = array(
     'label' => t('Commerce Fulfillment Package'),
     'base table' => 'commerce_fulfillment_packages',
@@ -131,6 +132,7 @@ function commerce_fulfillment_entity_info(){
     'fieldable' => true,
     'module'=>'commerce_fulfillment',
   );
+
   $info['commerce_fulfillment_shipment'] = array(
     'label' => t('Commerce Fulfillment Shipment'),
     'base table' => 'commerce_fulfillment_shipments',
@@ -179,7 +181,7 @@ function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillme
       'translatable' => FALSE,
       'locked' => TRUE,
     );
-    $field = field_create_field($field);
+    field_create_field($field);
   }
 
   if (empty($instance)) {
@@ -208,6 +210,7 @@ function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillme
     field_create_instance($instance);
   }
 }
+
 /**
  * @param $type
  *
@@ -236,7 +239,7 @@ function commerce_fulfillment_configure_shipment_type($type = 'commerce_fulfillm
       'translatable' => FALSE,
       'locked' => TRUE,
     );
-    $field = field_create_field($field);
+    field_create_field($field);
   }
 
   if (empty($instance)) {
@@ -264,6 +267,7 @@ function commerce_fulfillment_configure_shipment_type($type = 'commerce_fulfillm
     field_create_instance($instance);
   }
 }
+
 function commerce_fulfillment_action_info(){
   return array(
     'commerce_fulfillment_add_action' => array(
@@ -284,9 +288,9 @@ function commerce_fulfillment_action_info(){
       'triggers' => array('any'),
       'aggregate' => TRUE,
     ),
-
   );
 }
+
 function commerce_fulfillment_remove_action(&$object, $context = array()){
   $max = 0;
   $index_array = array();
@@ -310,6 +314,7 @@ function commerce_fulfillment_remove_action(&$object, $context = array()){
   }
 
 }
+
 function commerce_fulfillment_remove_action_form($options){
 
   $order_id = $options['view']->args[0];
@@ -326,13 +331,14 @@ function commerce_fulfillment_remove_action_form($options){
   );
   return $form;
 }
+
 function commerce_fulfillment_remove_action_submit($form, &$form_state){
   $output['package'] = $form_state['values']['commerce_fulfillment_package'];
   $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
   return $output;
 }
-function commerce_fulfillment_add_action(&$object, $context = array())
-{
+
+function commerce_fulfillment_add_action(&$object, $context = array()){
   $package_index = $context['package'];
   $order_id = $context ['order_id'];
   $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
@@ -355,6 +361,7 @@ function commerce_fulfillment_add_action(&$object, $context = array())
   }
   $package_wrapper->save();
 }
+
 function commerce_fulfillment_add_action_form($options){
   $order_id = $options['view']->args[0];
 
@@ -371,11 +378,13 @@ function commerce_fulfillment_add_action_form($options){
   );
   return $form;
 }
+
 function commerce_fulfillment_add_action_submit($form, &$form_state){
   $output['package'] = $form_state['values']['commerce_fulfillment_package'];
   $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
   return $output;
 }
+
 /**
  * @param $form_id
  * @param $args
@@ -413,8 +422,7 @@ function commerce_fulfillment_forms($form_id, $args){
  * implements hook hook_form
  * Adds the select box and add button to the packages interface.
  */
-function commerce_fulfillment_manipulate_package_form_builder($form, &$form_state, $args)
-{
+function commerce_fulfillment_manipulate_package_form_builder($form, &$form_state, $args){
   $package_id = $args[0];
   $order_id = $args[1];
   $form = array();
@@ -446,8 +454,8 @@ function commerce_fulfillment_manipulate_package_form_builder($form, &$form_stat
   $form['#submit'][] = 'commerce_fulfillment_manipulate_entity_form_submit';
 
   return $form;
-
 }
+
 /**
  * @param $form
  * @param $form_state
@@ -490,8 +498,8 @@ function commerce_fulfillment_manipulate_shipment_form_builder($form, &$form_sta
   $form['#submit'][] = 'commerce_fulfillment_manipulate_entity_form_submit';
 
   return $form;
-
 }
+
 function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state) {
 
   if (isset($form_state['values']['commerce_fulfillment_shipment_id'])) {
@@ -583,7 +591,6 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
       $wrapper->save();
     }
   }
-
   //remove a product from a package
   elseif($form_state['values']['commerce_fulfillment_radios'] == 1) {
     $count = 0;
@@ -617,7 +624,6 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
       drupal_set_message(t('@type1 @argument not found in @type2 @id.', array('@type1' => $type1, '@type2' => $type2, '@argument' => $argument, '@id' => $id)));
     }
   }
-
   //delete entity
   elseif($form_state['values']['commerce_fulfillment_radios']==2){
     $wrapper->delete();
@@ -636,7 +642,7 @@ function commerce_fulfillment_manipulate_entity_form_submit($form, &$form_state)
  * Otherwise just returns the array.
  */
 function commerce_fulfillment_get_array($order_id, $index = 'false', $type){
-
+  //@TODO - Turn this into a switch
   $id_array = array();
   //creates an array of products in a commerce order. Returns selected product if one chosen.
   if($type == 'commerce_order'){

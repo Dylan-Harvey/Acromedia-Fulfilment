@@ -20,56 +20,56 @@ $handler->display->display_options['exposed_form']['type'] = 'basic';
 $handler->display->display_options['pager']['type'] = 'none';
 $handler->display->display_options['style_plugin'] = 'table';
 $handler->display->display_options['style_options']['columns'] = array(
-'line_item_id' => 'line_item_id',
-'type' => 'type',
-'line_item_title' => 'line_item_title',
-'line_item_label' => 'line_item_title',
-'commerce_unit_price' => 'commerce_unit_price',
-'quantity' => 'quantity',
-'commerce_total' => 'commerce_total',
+  'line_item_id' => 'line_item_id',
+  'type' => 'type',
+  'line_item_title' => 'line_item_title',
+  'line_item_label' => 'line_item_title',
+  'commerce_unit_price' => 'commerce_unit_price',
+  'quantity' => 'quantity',
+  'commerce_total' => 'commerce_total',
 );
 $handler->display->display_options['style_options']['default'] = '-1';
 $handler->display->display_options['style_options']['info'] = array(
-'line_item_id' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => '',
-'separator' => '',
-),
-'type' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => '',
-'separator' => '',
-),
-'line_item_title' => array(
-'align' => '',
-'separator' => ' ',
-),
-'line_item_label' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => '',
-'separator' => '',
-),
-'commerce_unit_price' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => '',
-'separator' => '',
-),
-'quantity' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => '',
-'separator' => '',
-),
-'commerce_total' => array(
-'sortable' => 0,
-'default_sort_order' => 'asc',
-'align' => 'views-align-right',
-'separator' => '',
-),
+  'line_item_id' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+  ),
+  'type' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+  ),
+  'line_item_title' => array(
+    'align' => '',
+    'separator' => ' ',
+  ),
+  'line_item_label' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+  ),
+  'commerce_unit_price' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+  ),
+  'quantity' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+  ),
+  'commerce_total' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+  ),
 );
 /* Relationship: Commerce Line Item: Order ID */
 $handler->display->display_options['relationships']['order_id']['id'] = 'order_id';
@@ -87,70 +87,68 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_setti
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-'action::commerce_fulfillment_add_action' => array(
-'selected' => 1,
-'postpone_processing' => 0,
-'skip_confirmation' => 1,
-'override_label' => 0,
-'label' => '',
-),
-'action::views_bulk_operations_delete_item' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::views_bulk_operations_delete_revision' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::views_bulk_operations_script_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::views_bulk_operations_modify_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-'settings' => array(
-'show_all_tokens' => 1,
-'display_values' => array(
-'_all_' => '_all_',
-),
-),
-),
-'action::views_bulk_operations_argument_selector_action' => array(
-'selected' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-'settings' => array(
-'url' => '',
-),
-),
-'action::commerce_fulfillment_remove_action' => array(
-'selected' => 1,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::system_send_email_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
+  'action::commerce_fulfillment_add_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 1,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_delete_item' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_delete_revision' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_script_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_modify_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'show_all_tokens' => 1,
+      'display_values' => array(
+        '_all_' => '_all_',
+      ),
+    ),
+  ),
+  'action::views_bulk_operations_argument_selector_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'url' => '',
+    ),
+  ),
+  'action::commerce_fulfillment_remove_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 1,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::system_send_email_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
 );
 /* Field: Commerce Line Item: Line item ID */
 $handler->display->display_options['fields']['line_item_id']['id'] = 'line_item_id';

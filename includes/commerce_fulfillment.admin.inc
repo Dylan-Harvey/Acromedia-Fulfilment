@@ -13,34 +13,34 @@ function commerce_fulfillment_admin_form($form, &$form_state){
   $form = array();
 
   $form['commerce_fulfillment_title'] = array(
-    '#markup' => '<h2' . t('Admin Page') . '</h2>'
+    '#markup' => '<h2>' . t('Admin Page') . '</h2>'
   );
 
-  //Creates seperate information fields
+  //Creates separate information fields
   $form['commerce_fulfillment_company_information']=array(
-    '#type'=>'fieldset',
-    '#title'=>t("Enter your company's information below"),
-    '#description'=>'Enter information to use on Packing Slips and Shipping Labels.',
+    '#type' => 'fieldset',
+    '#title' => t("Enter your company's information below"),
+    '#description' => 'Enter information to use on Packing Slips and Shipping Labels.',
     '#prefix' => '<div id="boxtype-field-wrapper">',
     '#suffix' => '</div>',
   );
 
   //Textfields
   $form['commerce_fulfillment_company_information']['commerce_fulfillment_company'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Company name:'),
+    '#type' => 'textfield',
+    '#title' => t('Company name:'),
     '#default_value' => variable_get('commerce_fulfillment_company', NULL),
     '#required' => TRUE,
   );
   $form['commerce_fulfillment_company_information']['commerce_fulfillment_address'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Address:'),
+    '#type' => 'textfield',
+    '#title' => t('Address:'),
     '#default_value' => variable_get('commerce_fulfillment_address', NULL),
     '#required' => TRUE,
   );
   $form['commerce_fulfillment_company_information']['commerce_fulfillment_phone'] = array(
-    '#type'=>'textfield',
-    '#title'=>t('Company Phone Number:'),
+    '#type' => 'textfield',
+    '#title' => t('Company Phone Number:'),
     '#default_value' => variable_get('commerce_fulfillment_phone', NULL),
     '#required' => TRUE,
   );
@@ -55,6 +55,7 @@ function commerce_fulfillment_admin_form($form, &$form_state){
       '#title' => t('Add Package Type:'),
     );
   }
+
   $form['commerce_fulfillment_company_information']['add_boxtype'] = array(
     '#type' => 'submit',
     '#value' => t('Add Another Package Type'),
@@ -70,11 +71,12 @@ function commerce_fulfillment_admin_form($form, &$form_state){
   $form['#attributes']['enctype'] = 'multipart/form-data';
 
   $form['commerce_fulfillment_company_information']['commerce_fulfillment_logo']=array(
-    '#type'=>'managed_file',
-    '#title'=>t('Upload your company logo:'),
+    '#type' => 'managed_file',
+    '#title' => t('Upload your company logo:'),
     '#default_value' => variable_get('commerce_fulfillment_logo', NULL),
     '#upload_location' => 'public://logo/'
   );
+
   $form = system_settings_form($form);
   $form['#submit'][] = 'commerce_fulfillment_admin_form_submit';
 
@@ -91,20 +93,19 @@ function commerce_fulfillment_admin_form($form, &$form_state){
 
 function commerce_fulfillment_admin_form_submit($form, &$form_state){
 
-  //gets global variable package_type
+  //gets variable package_type
   $package_type = variable_get('commerce_fulfillment_package_type', NULL);
 
-  //initializes global variable package_type
-  if(!isset($package_type)) {
+  if($package_type == NULL) {
     $package_type = array();
   }
 
   //appends global variable package_type
-  for($i = $form_state['num_boxtypes']-1; $i>=0; $i--) {
-    $package_type[] = $form_state['values'][$i];
+  for($i = $form_state['num_boxtypes']; $i>=0; $i--) {
+    $package_type[] = $form_state['values'][$i-1];
   }
-  variable_set('commerce_fulfillment_package_type', $package_type);
 
+  variable_set('commerce_fulfillment_package_type', $package_type);
 }
 
 /**
@@ -142,11 +143,12 @@ function commerce_fulfillment_add_more_add_one($form, &$form_state) {
  *
  */
 function commerce_fulfillment_package_content($order){
+
   $order_wrapper = entity_metadata_wrapper( 'commerce_order', $order);
   $order_id = $order_wrapper->order_id->value();
 
   $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
-
+  //@TODO - this has a lot of formatting, consider moving it out into a tpl in the future
   $output = '<table><tr><td style = vertical-align:top>';
   $output .= '<h2>' . t('Products in Order @order_id:', array('@order_id' => $order_id)) . '</h2>';
 
@@ -165,7 +167,6 @@ function commerce_fulfillment_package_content($order){
     $output .= '<p>&emsp;<strong>' . t('Type: ') . '</strong>'
       . t('@package_type', array('@package_type' => $package_type)) . '</p>';
     $output .= '<h4>'. t('Products in Package:') . '</h4>';
-
 
     //creates an array of line_items that are in the specific package
     $line_items = array();
@@ -213,7 +214,7 @@ function commerce_fulfillment_package_content($order){
  * adds functionality to create a package
  *
  */
-function commerce_fulfillment_create_package_form($form, &$form_state,$order_id){
+function commerce_fulfillment_create_package_form($form, &$form_state, $order_id){
 
   $package_type = variable_get('commerce_fulfillment_package_type', array(0 => 'No Package Type set.'));
 
@@ -223,19 +224,23 @@ function commerce_fulfillment_create_package_form($form, &$form_state,$order_id)
     '#type' => 'hidden',
     '#value' => $order_id,
   );
+
   $form['commerce_fulfillment_title'] = array(
     '#markup'=>'<h2>Create a New Package:</h2>'
   );
+
   $form['commerce_fulfillment_package_type'] = array(
     '#type' => 'select',
     '#title' => t('Select package type: '),
     '#options' => $package_type,
     '#default_value' => 'default',
   );
+
   $form['commerce_fulfillment_create'] = array(
     '#type' => 'submit',
     '#value' => t('Create a Package')
   );
+
   return $form;
 }
 
@@ -253,7 +258,7 @@ function commerce_fulfillment_create_package_form_submit($form, &$form_state){
   $order = commerce_order_load($order_id);
   $order_wrapper= entity_metadata_wrapper('commerce_order', $order);
 
-  //create a package entity wrapper
+  //create a profile entity wrapper
   $profile_id = $order_wrapper->commerce_customer_billing->profile_id->value();
   $profile = commerce_customer_profile_load($profile_id);
   $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
@@ -264,8 +269,8 @@ function commerce_fulfillment_create_package_form_submit($form, &$form_state){
     'box_type' => $package_type[$form_state['values']['commerce_fulfillment_package_type']],
     'commerce_fulfillment_line_items' => NULL,
     'shipping_info'=> array(
-      'firstName' => $profile_wrapper->commerce_customer_address->first_name->value(),
-      'lastName' => $profile_wrapper->commerce_customer_address->last_name->value(),
+      'first_name' => $profile_wrapper->commerce_customer_address->first_name->value(),
+      'last_name' => $profile_wrapper->commerce_customer_address->last_name->value(),
       'company' => $profile_wrapper->commerce_customer_address->organisation_name->value(),
       'address' => $profile_wrapper->commerce_customer_address->thoroughfare->value(),
       'city' => $profile_wrapper->commerce_customer_address->locality->value(),
@@ -275,7 +280,6 @@ function commerce_fulfillment_create_package_form_submit($form, &$form_state){
     ),
   ));
 
-  //insert entity into database
   $entity->save('commerce_fulfillment_package', $entity);
 }
 /**
@@ -290,18 +294,22 @@ function commerce_fulfillment_create_package_form_submit($form, &$form_state){
 function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
 
   $form = array();
+
   $form['commerce_fulfillment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
   );
+
   $form['commerce_fulfillment_title'] = array(
     '#markup' => '<h2>' . t('Print Packing Slip:') . '</h2>',
   );
+
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
     '#title' => t('Select Package:'),
     '#options' => commerce_fulfillment_get_array($order_id, 'false', 'package_in_order'),
   );
+
   $form['commerce_fulfillment_print'] = array(
     '#type' => 'submit',
     '#value' => t('Print Packing Slip')
@@ -310,7 +318,7 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
   return $form;
 
 }
-return 'Hello';
+
 /**
  * @param $form
  * @param $form_state
@@ -327,17 +335,16 @@ function commerce_fulfillment_packing_slip_form_submit($form, &$form_state){
  * The page to show and print the packing slip
  *
  */
+//@TODO this would also probably be a good candidate for a tpl
 function commerce_fulfillment_packing_slip_content($package_id){
   $package_selected = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $package_id));
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_selected[$package_id]);
   $order_id = $package_selected[$package_id]->order_id;
   $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
   $products = $package_wrapper->commerce_fulfillment_line_items->value();
-  $count = 0;
 
-  foreach($packages as $package){
-    $count++;
-  }
+  $count = count($packages);
+
   $image = variable_get('commerce_fulfillment_logo', NULL);
 
   if($image !== NULL) {
@@ -375,6 +382,7 @@ function commerce_fulfillment_packing_slip_content($package_id){
     $length = strlen($prices[1]);
     $prices[1] = substr_replace($prices[1], '.', $length - 2, 0);
 
+    //@TODO possibly break this up into a few $output .= lines, makes it a bit easier to read and the speed is the same
     $output .= t('<tr><td>' . $product->line_item_label . '</td><td>' . $product->quantity .'</td><td>' .
       $prices[0] . ' ' . $product_wrapper->commerce_unit_price->currency_code->value() . '</td><td>' . $prices[1] . ' '
       . $product_wrapper->commerce_total->currency_code->value() . '</td></tr>');
@@ -384,6 +392,7 @@ function commerce_fulfillment_packing_slip_content($package_id){
   $output .= t('<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_wrapper->package_id->value()
     . '<br><strong>Package:</strong> 1 of ' . $count . '</td>');
   $output.= t('</tr></table>');
+
   print $output;
 }
 
@@ -448,10 +457,12 @@ function commerce_fulfillment_shipment_content($order) {
         }
       }
     }
+
     $args = array($shipment_id);
     $get_form = (drupal_get_form('commerce_fulfillment_manipulate_shipment_form_' . $shipment_id, $args));
     $output .= drupal_render($get_form);
   }
+
   $output .= t('</td></tr><tr><td>');
   $get_form = drupal_get_form('commerce_fulfillment_create_shipment_form', $order_id);
   $output .= drupal_render($get_form) . '</td>';
@@ -474,22 +485,27 @@ function commerce_fulfillment_shipment_content($order) {
 function commerce_fulfillment_shipping_label_print_form($form, &$form_state, $order_id){
 
   $form = array();
+
   $form['commerce_fulfillment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
   );
+
   $form['commerce_fulfillment_title'] = array(
     '#markup'=>'<h2>' . t('Print Shipping Label:') . '</h2>',
   );
+
   $form['commerce_fulfillment_shipment'] = array(
     '#type' => 'select',
     '#title' => t('Select Shipment:'),
     '#options' => commerce_fulfillment_get_array($order_id, 'false', 'shipment_in_order'),
   );
+
   $form['commerce_fulfillment_print'] = array(
     '#type' => 'submit',
     '#value' => t('Print Shipping Label')
   );
+
   return $form;
 }
 
@@ -527,6 +543,7 @@ function commerce_fulfillment_shipping_label_content($shipment_id){
   else {
     $image_obj_url = NULL;
   }
+
   $output = t('<table border = "1px solid black" height = "350" width = "700"><tr><td height = "50%">
     <strong> From: </Strong>' . variable_get('commerce_fulfillment_company', NULL) . '<br>&emsp;&emsp;&emsp;'
     . variable_get('commerce_fulfillment_address', NULL)
@@ -540,6 +557,7 @@ function commerce_fulfillment_shipping_label_content($shipment_id){
   $output .= t('<td width = "50%"><strong>Order ID: </strong>' . $shipment->order_id
     . '<br><strong>Tracking Number: </strong>' . $shipment->tracking_number . '<br><strong>Shipping Method: </strong>'
     . $shipment->method['method'] . '<br>' . '</tr></table>');
+
   print $output;
 }
 
@@ -557,13 +575,16 @@ function commerce_fulfillment_shipping_label_content($shipment_id){
 function commerce_fulfillment_create_shipment_form($form, &$form_state,$order_id){
 
   $form = array();
+
   $form['commerce_fulfillment_order_id'] = array(
     '#type' => 'hidden',
     '#value' => $order_id,
   );
+
   $form['commerce_fulfillment_title'] = array(
     '#markup'=>'<h2>' . t('Create a New Shipment:') . '</h2>',
   );
+
   $form['commerce_fulfillment_tracking_number'] = array(
     '#type' => 'textfield',
     '#title' => t('Enter tracking number:'),
@@ -571,6 +592,7 @@ function commerce_fulfillment_create_shipment_form($form, &$form_state,$order_id
     '#length' => 255,
     '#required' => false,
   );
+
   $form['commerce_fulfillment_create'] = array(
     '#type' => 'submit',
     '#value' => t('Create Shipment')
@@ -605,5 +627,6 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
     ),
     'tracking_number' => $form_state['values']['commerce_fulfillment_tracking_number'],
   ));
+
   $entity->save('commerce_fulfillment_shipment', $entity);
 }
