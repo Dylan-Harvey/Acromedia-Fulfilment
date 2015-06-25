@@ -290,11 +290,10 @@ function commerce_fulfillment_action_info(){
 function commerce_fulfillment_remove_action(&$object, $context = array()){
   $package_index = $context['package'];
   $product_id = $object->line_item_id;
-  dpm($object);
-  dpm($context);
+
 }
 function commerce_fulfillment_remove_action_form($options){
-  dpm($options);
+
   $order_id = $options['view']->args[0];
   $form = array();
   $form['commerce_fulfillment_package'] = array(
@@ -315,8 +314,6 @@ function commerce_fulfillment_remove_action_submit($form, &$form_state){
 }
 function commerce_fulfillment_add_action(&$object, $context = array())
 {
-  dpm($object);
-  dpm($context);
   $package_index = $context['package'];
   $order_id = $context ['order_id'];
   $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
@@ -644,7 +641,7 @@ function commerce_fulfillment_get_array($order_id, $index = 'false', $type){
   //creates an array of products in a commerce order. Returns selected product if one chosen.
   elseif($type == 'package_in_order'){
     $entity_array = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
-    dpm($entity_array);
+
 
     foreach($entity_array as $entity){
       $entity = entity_metadata_wrapper('commerce_fulfillment_package', $entity);
