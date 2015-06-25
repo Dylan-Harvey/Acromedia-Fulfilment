@@ -141,7 +141,7 @@ function commerce_fulfillment_add_more_add_one($form, &$form_state) {
  * Pulls in Order info and displays the name of the products in chosen Order.
  *
  */
-function commerce_fulfillment_package_content($order){
+function commerce_fulfillment_package_dcontent($order){
   $order_wrapper = entity_metadata_wrapper( 'commerce_order', $order);
   $order_id = $order_wrapper->order_id->value();
 
