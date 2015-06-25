@@ -276,33 +276,91 @@ function commerce_fulfillment_action_info(){
     ),
     'commerce_fulfillment_remove_action' => array(
       'type' => 'entity',
-      'label' => t('Add to'),
+      'label' => t('Remove from'),
       'behaviour' => array('changes_property'),
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
       'triggers' => array('any'),
     ),
+
   );
 }
-function commerce_fulfillment_remove_action(){
-  return 'Im an operation';
+function commerce_fulfillment_remove_action(&$object, $context = array()){
+  $package_index = $context['package'];
+  $product_id = $object->line_item_id;
+  dpm($object);
+  dpm($context);
 }
-function commerce_fulfillment_remove_action_form(){
+function commerce_fulfillment_remove_action_form($options){
+  dpm($options);
+  $order_id = $options['view']->args[0];
   $form = array();
+  $form['commerce_fulfillment_package'] = array(
+    '#type' => 'select',
+    '#title' => t('Select a Package:'),
+    '#options' => commerce_fulfillment_get_array($order_id, 'false', 'package_in_order'),
+    '#required' => true,
+  );
+  $form['commerce_fulfillment_order'] = array(
+    '#type' => 'hidden',
+    '#value' => $order_id
+  );
   return $form;
 }
-function commerce_fulfillment_remove_action_form_submit($form, &$form_state){
-  return 'Hello';
+function commerce_fulfillment_remove_action_submit($form, &$form_state){
+  $output['package'] = $form_state['values']['commerce_fulfillment_package'];
+  return $output;
 }
-function commerce_fulfillment_add_action(){
-  return 'Im an operation';
+function commerce_fulfillment_add_action(&$object, $context = array()){
+  $package_index = $context['package'];
+  dpm($package_index);
+  $order_id = $context ['order_id'];
+  $product_id = $object->line_item_id;
+  $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
+  dpm($package);
+  $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package));
+  dpm('yay');
+  dpm($package_entity);
+  $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package]);
+  $package_wrapper->commerce_fulfillment_line_items[] = $product_id;
+  dpm('motherfucker');
+  $package_wrapper->save();
+  dpm('wow!');
 }
-function commerce_fulfillment_add_action_form(){
+function commerce_fulfillment_add_action_form($options){
+  dpm($options);
+  $order_id = $options['view']->args[0];
   $form = array();
+  $form['commerce_fulfillment_package'] = array(
+    '#type' => 'select',
+    '#title' => t('Select a Package:'),
+    '#options' => commerce_fulfillment_get_array($order_id, 'false', 'package_in_order'),
+    '#required' => true,
+  );
+  $form['commerce_fulfillment_order'] = array(
+    '#type' => 'hidden',
+    '#value' => $order_id
+  );
   return $form;
 }
-function commerce_fulfillment_add_action_form_submit($form, &$form_state){
-  return 'Hello';
+function commerce_fulfillment_add_action_submit($form, &$form_state){
+  $output['package'] = $form_state['values']['commerce_fulfillment_package'];
+  $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
+  return $output;
+}
+function commerce_fulfillment_manipulate_entity($argument, $target, $type, $action){
+  if($type == 'commerce_fulfillment_package'){
+    $target = entity_load('$type', false, array('package_id' => $target));
+    $field = 'commerce_fulfillment_line_items';
+  }
+  elseif($type == 'commerce_fulfillment_shipment'){
+    $target = entity_load($type, false, array('shipment_id' => $target));
+    $field = 'commerce_fulfillment_packages';
+  }
+  $target_wrapper = entity_metadata_wrapper($type, $target);
+  if($action == 'add'){
+    $target_wrapper->{$field}[] = $argument;
+  }
 }
 /**
  * @param $form_id

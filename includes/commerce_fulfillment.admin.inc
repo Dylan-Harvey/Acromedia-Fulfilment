@@ -310,7 +310,7 @@ function commerce_fulfillment_packing_slip_form($form, $form_state, $order_id){
   return $form;
 
 }
-
+return 'Hello';
 /**
  * @param $form
  * @param $form_state
