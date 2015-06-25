@@ -376,20 +376,6 @@ function commerce_fulfillment_add_action_submit($form, &$form_state){
   $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
   return $output;
 }
-function commerce_fulfillment_manipulate_entity($argument, $target, $type, $action){
-  if($type == 'commerce_fulfillment_package'){
-    $target = entity_load('$type', false, array('package_id' => $target));
-    $field = 'commerce_fulfillment_line_items';
-  }
-  elseif($type == 'commerce_fulfillment_shipment'){
-    $target = entity_load($type, false, array('shipment_id' => $target));
-    $field = 'commerce_fulfillment_packages';
-  }
-  $target_wrapper = entity_metadata_wrapper($type, $target);
-  if($action == 'add'){
-    $target_wrapper->{$field}[] = $argument;
-  }
-}
 /**
  * @param $form_id
  * @param $args
