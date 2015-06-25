@@ -153,6 +153,7 @@ function commerce_fulfillment_package_content($order){
   $output .= '<h2>' . t('Products in Order @order_id:', array('@order_id' => $order_id)) . '</h2>';
 
   $output .= views_embed_view('commerce_fulfillment_line_items', 'default', $order_id);
+  $output .= views_embed_view('commerce_fulfillment_packages', 'default', $order_id);
 
   $output .= '</td><td style = vertical-align:top><h2>' . t('Created Packages for This Order:') . '</h2>';
 

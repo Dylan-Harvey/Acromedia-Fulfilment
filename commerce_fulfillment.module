@@ -272,7 +272,7 @@ function commerce_fulfillment_action_info(){
   return array(
     'commerce_fulfillment_add_action' => array(
       'type' => 'entity',
-      'label' => t('Add to'),
+      'label' => t('Add to Package'),
       'behaviour' => array('changes_property'),
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
@@ -281,7 +281,7 @@ function commerce_fulfillment_action_info(){
     ),
     'commerce_fulfillment_remove_action' => array(
       'type' => 'entity',
-      'label' => t('Remove from'),
+      'label' => t('Remove from Package'),
       'behaviour' => array('changes_property'),
       'configurable' => TRUE,
       'vbo_configurable' => TRUE,
@@ -292,7 +292,7 @@ function commerce_fulfillment_action_info(){
 }
 
 function commerce_fulfillment_remove_action(&$object, $context = array()){
-  $max = 0;
+  $index = 0;
   $index_array = array();
   $package_index = $context['package'];
   $order_id = $context ['order_id'];
@@ -302,10 +302,10 @@ function commerce_fulfillment_remove_action(&$object, $context = array()){
   foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
     foreach ($object as $line_item) {
       if ($index->line_item_id == $line_item->line_item_id) {
-        $index_array[] = $max;
+        $index_array[] = $index;
       }
     }
-    $max++;
+    $index++;
   }
 
   foreach ($index_array as $index) {
@@ -366,6 +366,7 @@ function commerce_fulfillment_add_action_form($options){
   $order_id = $options['view']->args[0];
 
   $form = array();
+
   $form['commerce_fulfillment_package'] = array(
     '#type' => 'select',
     '#title' => t('Select a Package:'),
