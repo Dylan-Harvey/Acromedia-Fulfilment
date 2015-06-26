@@ -153,7 +153,7 @@ function commerce_fulfillment_package_content($order){
   $output .= '<h2>' . t('Products in Order @order_id:', array('@order_id' => $order_id)) . '</h2>';
 
   $output .= views_embed_view('commerce_fulfillment_line_items', 'default', $order_id);
-  $output .= views_embed_view('commerce_fulfillment_packages', 'default', $order_id);
+  $output .= views_embed_view('commerce_fulfillment_packages', 'package_package_block', $order_id);
 
   $output .= '</td><td style = vertical-align:top><h2>' . t('Created Packages for This Order:') . '</h2>';
 
@@ -413,7 +413,8 @@ function commerce_fulfillment_shipment_content($order) {
   $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
 
   $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
-
+  $output.= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
+  $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
   foreach ($packages as $package) {
     $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package);
     $package_id = $package_wrapper->package_id->value();

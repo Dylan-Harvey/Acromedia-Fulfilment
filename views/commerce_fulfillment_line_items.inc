@@ -196,17 +196,25 @@ $handler->display->display_options['fields']['commerce_total']['click_sort_colum
 $handler->display->display_options['sorts']['line_item_id']['id'] = 'line_item_id';
 $handler->display->display_options['sorts']['line_item_id']['table'] = 'commerce_line_item';
 $handler->display->display_options['sorts']['line_item_id']['field'] = 'line_item_id';
-/* Contextual filter: Commerce Order: Order ID */
-$handler->display->display_options['arguments']['order_id']['id'] = 'order_id';
-$handler->display->display_options['arguments']['order_id']['table'] = 'commerce_order';
-$handler->display->display_options['arguments']['order_id']['field'] = 'order_id';
-$handler->display->display_options['arguments']['order_id']['relationship'] = 'order_id';
-$handler->display->display_options['arguments']['order_id']['default_argument_type'] = 'fixed';
-$handler->display->display_options['arguments']['order_id']['summary']['number_of_records'] = '0';
-$handler->display->display_options['arguments']['order_id']['summary']['format'] = 'default_summary';
-$handler->display->display_options['arguments']['order_id']['summary_options']['items_per_page'] = '25';
+/* Contextual filter: Commerce Line Item: Line item ID */
+$handler->display->display_options['arguments']['line_item_id']['id'] = 'line_item_id';
+$handler->display->display_options['arguments']['line_item_id']['table'] = 'commerce_line_item';
+$handler->display->display_options['arguments']['line_item_id']['field'] = 'line_item_id';
+$handler->display->display_options['arguments']['line_item_id']['default_action'] = 'not found';
+$handler->display->display_options['arguments']['line_item_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['line_item_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['line_item_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['line_item_id']['summary_options']['items_per_page'] = '25';
 /* Filter criterion: Commerce Line Item: Line item is of a product line item type */
 $handler->display->display_options['filters']['product_line_item_type']['id'] = 'product_line_item_type';
 $handler->display->display_options['filters']['product_line_item_type']['table'] = 'commerce_line_item';
 $handler->display->display_options['filters']['product_line_item_type']['field'] = 'product_line_item_type';
 $handler->display->display_options['filters']['product_line_item_type']['value'] = '1';
+
+/* Display: Line Items Block */
+$handler = $view->new_display('block', 'Line Items Block', 'line_item_block');
+$handler->display->display_options['block_description'] = 'Line Items Block';
+
+/* Display: Line Items in Package Block */
+$handler = $view->new_display('block', 'Line Items in Package Block', 'package_line_item_block');
+$handler->display->display_options['block_description'] = 'Line Items in Package Block';
