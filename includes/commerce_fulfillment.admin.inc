@@ -146,61 +146,16 @@ function commerce_fulfillment_package_content($order){
 
   $order_wrapper = entity_metadata_wrapper( 'commerce_order', $order);
   $order_id = $order_wrapper->order_id->value();
-
-  $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
+  //outputs forms to create a package and to print the packing slip for the selected package
+  $get_form = drupal_get_form('commerce_fulfillment_create_package_form', $order_id);
+  $output = drupal_render($get_form);
   //@TODO - this has a lot of formatting, consider moving it out into a tpl in the future
-  $output = '<table><tr><td style = vertical-align:top>';
   $output .= '<h2>' . t('Products in Order @order_id:', array('@order_id' => $order_id)) . '</h2>';
 
-  $output .= views_embed_view('commerce_fulfillment_line_items', 'default', $order_id);
+  $output .= views_embed_view('commerce_fulfillment_line_items', 'line_item_block', $order_id);
+
+  $output .= '<h2>' . t('Packages:') . '</h2>';
   $output .= views_embed_view('commerce_fulfillment_packages', 'package_package_block', $order_id);
-
-  $output .= '</td><td style = vertical-align:top><h2>' . t('Created Packages for This Order:') . '</h2>';
-
-  //outputs each package
-  foreach ($packages as $package) {
-    $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package);
-
-    $package_id = $package_wrapper->package_id->value();
-    $output .= '<h3>' . t('Package @package_id:', array('@package_id'=>$package_id)) . '</h3>';
-
-    $package_type = $package_wrapper->box_type->value();
-    $output .= '<p>&emsp;<strong>' . t('Type: ') . '</strong>'
-      . t('@package_type', array('@package_type' => $package_type)) . '</p>';
-    $output .= '<h4>'. t('Products in Package:') . '</h4>';
-
-    //creates an array of line_items that are in the specific package
-    $line_items = array();
-
-    foreach($package_wrapper->commerce_fulfillment_line_items->value() as $line_item){
-      $line_items[] = $line_item;
-    }
-
-    //outputs each line_item that are in the specific package
-    foreach ($line_items as $line_item) {
-      $line_item_id = $line_item->line_item_id;
-      $line_item_label = $line_item->line_item_label;
-      $line_item_quantity = $line_item->quantity;
-      $output .= '<p><strong>' . t('Product ID: ') . '</strong>' . t('@line_item_id', array('@line_item_id' => $line_item_id))
-        . '</p><p>&emsp;<strong>' . t('Product Code: ') . '</strong>' . t('@line_item_label', array('@line_item_label' => $line_item_label)). '</p>';
-      $output .= '<p>&emsp;<strong>' . t('Quantity: ') . '</strong>' . t('@line_item_quantity', array('@line_item_quantity' => $line_item_quantity)) . '</p>';
-    }
-
-    //outputs form to interact with the package
-    $get_form = drupal_get_form('commerce_fulfillment_manipulate_package_form_' . $package_wrapper->package_id->value(),
-      array('0' => $package_wrapper->package_id->value(), '1' => $order_id));
-    $output .= drupal_render($get_form);
-  }
-
-  //outputs forms to create a package and to print the packing slip for the selected package
-  $output.= t('</td></tr><tr>');
-  $get_form = drupal_get_form('commerce_fulfillment_create_package_form', $order_id);
-  $output .= t('<td>' . drupal_render($get_form) . '</td>');
-
-  $get_form = drupal_get_form('commerce_fulfillment_packing_slip_form', $order_id);
-  $output .= t('<td>' . drupal_render($get_form) . '</td>');
-
-  $output .= t('</tr></table>');
 
   return $output;
 }
@@ -408,31 +363,12 @@ function commerce_fulfillment_shipment_content($order) {
 
   $order_id = $order->order_id;
 
-  $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id'=>$order_id));
-  $packages_id = array();
   $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
 
   $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
   $output.= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
   $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
-  foreach ($packages as $package) {
-    $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package);
-    $package_id = $package_wrapper->package_id->value();
-    $packages_id[] = $package_wrapper->package_id->value();
-    $output .= t('<h3>Package ' . $package_id . ':</h3>');
-    $output .= t('<h4>Products in Package:</h4>');
-    $line_items = array();
 
-    foreach($package_wrapper->commerce_fulfillment_line_items->value() as $line_item){
-      $line_items[] = $line_item;
-    }
-
-    foreach ($line_items as $line_item) {
-      $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
-      $output .= t('<p><strong>Product ID: </strong>' .$line_item->line_item_id->value()
-        . '</p><p><strong>Product Code: </strong>' . $line_item->line_item_label->value() . '</p>');
-    }
-  }
   $output .= t('</td><td style = vertical-align:top><h2>Created Shipments for This Order:</h2>');
 
   foreach ($shipments as $shipment) {
@@ -445,20 +381,6 @@ function commerce_fulfillment_shipment_content($order) {
     $output .= t('<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
       ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
       ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>');
-
-    $output .= t('<h4>&emsp;Packages in Shipment:</h4>');
-    $packages = $shipment_wrapper->commerce_fulfillment_packages->value();
-
-    if($packages !== NULL) {
-
-      foreach ($packages as $package) {
-        $package = entity_metadata_wrapper('commerce_fulfillment_package', $package);
-        if ($package !== NULL) {
-          $output .= t('<p>&emsp;&emsp;<strong>Package ID: </strong>' . $package->package_id->value()
-            . '</p>');
-        }
-      }
-    }
 
     $args = array($shipment_id);
     $get_form = (drupal_get_form('commerce_fulfillment_manipulate_shipment_form_' . $shipment_id, $args));

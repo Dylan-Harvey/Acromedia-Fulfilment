@@ -213,8 +213,242 @@ $handler->display->display_options['filters']['product_line_item_type']['value']
 
 /* Display: Line Items Block */
 $handler = $view->new_display('block', 'Line Items Block', 'line_item_block');
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: Bulk operations: Commerce Line Item */
+$handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
+$handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+  'action::commerce_fulfillment_add_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 1,
+    'override_label' => 1,
+    'label' => 'Add to Package',
+  ),
+  'action::views_bulk_operations_delete_item' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_delete_revision' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_script_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_modify_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'show_all_tokens' => 1,
+      'display_values' => array(
+        '_all_' => '_all_',
+      ),
+    ),
+  ),
+  'action::views_bulk_operations_argument_selector_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'url' => '',
+    ),
+  ),
+  'action::commerce_fulfillment_packing_slip_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::commerce_fulfillment_remove_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 1,
+    'override_label' => 1,
+    'label' => 'Remove from Package',
+  ),
+  'action::system_send_email_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+);
+/* Field: Commerce Line Item: Line item ID */
+$handler->display->display_options['fields']['line_item_id']['id'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_id']['field'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['label'] = 'ID';
+/* Field: Commerce Line Item: Type */
+$handler->display->display_options['fields']['type']['id'] = 'type';
+$handler->display->display_options['fields']['type']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['type']['field'] = 'type';
+$handler->display->display_options['fields']['type']['exclude'] = TRUE;
+/* Field: Commerce Line Item: Title */
+$handler->display->display_options['fields']['line_item_title']['id'] = 'line_item_title';
+$handler->display->display_options['fields']['line_item_title']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_title']['field'] = 'line_item_title';
+/* Field: Commerce Line Item: Label */
+$handler->display->display_options['fields']['line_item_label']['id'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_label']['field'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['line_item_label']['alter']['text'] = '([line_item_label])';
+/* Field: Commerce Line item: Unit price */
+$handler->display->display_options['fields']['commerce_unit_price']['id'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['table'] = 'field_data_commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['field'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['click_sort_column'] = 'amount';
+/* Field: Commerce Line Item: Quantity */
+$handler->display->display_options['fields']['quantity']['id'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['quantity']['field'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['precision'] = '0';
+/* Field: Commerce Line item: Total */
+$handler->display->display_options['fields']['commerce_total']['id'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['table'] = 'field_data_commerce_total';
+$handler->display->display_options['fields']['commerce_total']['field'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['click_sort_column'] = 'amount';
 $handler->display->display_options['block_description'] = 'Line Items Block';
 
 /* Display: Line Items in Package Block */
 $handler = $view->new_display('block', 'Line Items in Package Block', 'package_line_item_block');
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: Bulk operations: Commerce Line Item */
+$handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
+$handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
+$handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
+$handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
+  'action::commerce_fulfillment_add_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 1,
+    'override_label' => 1,
+    'label' => 'Add to Package',
+  ),
+  'action::views_bulk_operations_delete_item' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_delete_revision' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_script_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::views_bulk_operations_modify_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'show_all_tokens' => 1,
+      'display_values' => array(
+        '_all_' => '_all_',
+      ),
+    ),
+  ),
+  'action::views_bulk_operations_argument_selector_action' => array(
+    'selected' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+    'settings' => array(
+      'url' => '',
+    ),
+  ),
+  'action::commerce_fulfillment_packing_slip_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+  'action::commerce_fulfillment_remove_action' => array(
+    'selected' => 1,
+    'skip_confirmation' => 0,
+    'override_label' => 1,
+    'label' => 'Remove from Package',
+  ),
+  'action::system_send_email_action' => array(
+    'selected' => 0,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 0,
+    'override_label' => 0,
+    'label' => '',
+  ),
+);
+/* Field: Commerce Line Item: Line item ID */
+$handler->display->display_options['fields']['line_item_id']['id'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_id']['field'] = 'line_item_id';
+$handler->display->display_options['fields']['line_item_id']['label'] = 'ID';
+/* Field: Commerce Line Item: Type */
+$handler->display->display_options['fields']['type']['id'] = 'type';
+$handler->display->display_options['fields']['type']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['type']['field'] = 'type';
+$handler->display->display_options['fields']['type']['exclude'] = TRUE;
+/* Field: Commerce Line Item: Title */
+$handler->display->display_options['fields']['line_item_title']['id'] = 'line_item_title';
+$handler->display->display_options['fields']['line_item_title']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_title']['field'] = 'line_item_title';
+/* Field: Commerce Line Item: Label */
+$handler->display->display_options['fields']['line_item_label']['id'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['line_item_label']['field'] = 'line_item_label';
+$handler->display->display_options['fields']['line_item_label']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['line_item_label']['alter']['text'] = '([line_item_label])';
+/* Field: Commerce Line item: Unit price */
+$handler->display->display_options['fields']['commerce_unit_price']['id'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['table'] = 'field_data_commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['field'] = 'commerce_unit_price';
+$handler->display->display_options['fields']['commerce_unit_price']['click_sort_column'] = 'amount';
+/* Field: Commerce Line Item: Quantity */
+$handler->display->display_options['fields']['quantity']['id'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['table'] = 'commerce_line_item';
+$handler->display->display_options['fields']['quantity']['field'] = 'quantity';
+$handler->display->display_options['fields']['quantity']['precision'] = '0';
+/* Field: Commerce Line item: Total */
+$handler->display->display_options['fields']['commerce_total']['id'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['table'] = 'field_data_commerce_total';
+$handler->display->display_options['fields']['commerce_total']['field'] = 'commerce_total';
+$handler->display->display_options['fields']['commerce_total']['click_sort_column'] = 'amount';
 $handler->display->display_options['block_description'] = 'Line Items in Package Block';
