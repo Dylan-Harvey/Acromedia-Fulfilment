@@ -19,14 +19,20 @@ $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['exposed_form']['type'] = 'basic';
 $handler->display->display_options['pager']['type'] = 'none';
 $handler->display->display_options['pager']['options']['offset'] = '0';
-$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_plugin'] = 'table_megarows';
 $handler->display->display_options['style_options']['columns'] = array(
+  'views_bulk_operations' => 'views_bulk_operations',
   'package_id' => 'package_id',
   'box_type' => 'box_type',
   'commerce_fulfillment_line_items' => 'commerce_fulfillment_line_items',
 );
-$handler->display->display_options['style_options']['default'] = 'package_id';
+$handler->display->display_options['style_options']['default'] = '-1';
 $handler->display->display_options['style_options']['info'] = array(
+  'views_bulk_operations' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
   'package_id' => array(
     'sortable' => 0,
     'default_sort_order' => 'asc',
@@ -44,15 +50,19 @@ $handler->display->display_options['style_options']['info'] = array(
   'commerce_fulfillment_line_items' => array(
     'align' => '',
     'separator' => '',
-    'empty_column' => 0,
+    'empty_column' => 1,
   ),
 );
+$handler->display->display_options['style_options']['scroll_padding'] = '120';
+$handler->display->display_options['row_plugin'] = 'entity';
+$handler->display->display_options['row_options']['view_mode'] = 'token';
 /* Field: Bulk operations: Commerce Fulfillment Package */
 $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
 $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'commerce_fulfillment_packages';
 $handler->display->display_options['fields']['views_bulk_operations']['field'] = 'views_bulk_operations';
 $handler->display->display_options['fields']['views_bulk_operations']['label'] = '';
 $handler->display->display_options['fields']['views_bulk_operations']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_bulk_operations']['hide_empty'] = TRUE;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['display_type'] = '1';
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['enable_select_all_pages'] = 0;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
@@ -65,11 +75,11 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
     'label' => '',
   ),
   'action::views_bulk_operations_delete_item' => array(
-    'selected' => 0,
+    'selected' => 1,
     'postpone_processing' => 0,
     'skip_confirmation' => 0,
-    'override_label' => 0,
-    'label' => '',
+    'override_label' => 1,
+    'label' => 'Delete Package',
   ),
   'action::views_bulk_operations_delete_revision' => array(
     'selected' => 0,
@@ -106,6 +116,13 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
     'settings' => array(
       'url' => '',
     ),
+  ),
+  'action::commerce_fulfillment_packing_slip_action' => array(
+    'selected' => 1,
+    'postpone_processing' => 0,
+    'skip_confirmation' => 1,
+    'override_label' => 0,
+    'label' => '',
   ),
   'action::commerce_fulfillment_remove_action' => array(
     'selected' => 0,
