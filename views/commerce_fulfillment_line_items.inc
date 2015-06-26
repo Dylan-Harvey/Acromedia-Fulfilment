@@ -205,6 +205,7 @@ $handler->display->display_options['arguments']['line_item_id']['default_argumen
 $handler->display->display_options['arguments']['line_item_id']['summary']['number_of_records'] = '0';
 $handler->display->display_options['arguments']['line_item_id']['summary']['format'] = 'default_summary';
 $handler->display->display_options['arguments']['line_item_id']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['line_item_id']['break_phrase'] = TRUE;
 /* Filter criterion: Commerce Line Item: Line item is of a product line item type */
 $handler->display->display_options['filters']['product_line_item_type']['id'] = 'product_line_item_type';
 $handler->display->display_options['filters']['product_line_item_type']['table'] = 'commerce_line_item';
@@ -345,6 +346,7 @@ $handler->display->display_options['block_description'] = 'Line Items Block';
 
 /* Display: Line Items in Package Block */
 $handler = $view->new_display('block', 'Line Items in Package Block', 'package_line_item_block');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
 $handler->display->display_options['defaults']['fields'] = FALSE;
 /* Field: Bulk operations: Commerce Line Item */
 $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';

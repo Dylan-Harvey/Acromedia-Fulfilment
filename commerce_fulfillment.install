@@ -28,12 +28,6 @@ function commerce_fulfillment_schema() {
         'length' => '255',
         'not null' => FALSE,
       ),
-      'shipping_info' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'serialize'=> TRUE,
-        'not null' => TRUE,
-      ),
     ),
     'primary key' => array('package_id'),
   );
@@ -57,24 +51,6 @@ function commerce_fulfillment_schema() {
         'type' => 'varchar',
         'length' => '255',
         'not null' => TRUE,
-      ),
-      'dates' => array (
-        'type' => 'varchar',
-        'length' => '255',
-        'serialize' => TRUE,
-        'not null' => FALSE,
-      ),
-      'shipping_info' => array (
-        'type' => 'varchar',
-        'length' => '255',
-        'serialize' => TRUE,
-        'not null' => TRUE,
-      ),
-      'method' => array (
-        'type' => 'varchar',
-        'length' => '255',
-        'serialize' => TRUE,
-        'not null' => FALSE,
       ),
       'tracking_number' => array(
         'description' => 'Tracking number for the shipments',

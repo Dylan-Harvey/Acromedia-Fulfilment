@@ -148,7 +148,6 @@ function commerce_fulfillment_entity_info(){
   return $info;
 
 }
-
 /**
  * Implement hook_enable()
  */
@@ -183,7 +182,6 @@ function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillme
     );
     field_create_field($field);
   }
-
   if (empty($instance)) {
     $instance = array(
       'field_name' => $field_name,
@@ -206,6 +204,36 @@ function commerce_fulfillment_configure_package_type($type = 'commerce_fulfillme
         'weight' => -10,
       );
     }
+
+    field_create_instance($instance);
+  }
+
+  $field_name = 'commerce_fulfillment_shipping';
+
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_fulfillment_package', $field_name, $type);
+  //creates the package shipping info field
+  if(empty($field)) {
+    $field = array(
+      'field_name' => 'commerce_fulfillment_shipping',
+      'type' => 'text',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'entity_types' => array('commerce_fulfillment_package', 'commerce_fulfillment_shipment'),
+      'translatable' => TRUE,
+    );
+
+    field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'commerce_fulfillment_package',
+      'bundle' => $type,
+      'label' => t('Shipping Info'),
+      'display' => array(),
+    );
 
     field_create_instance($instance);
   }
@@ -266,6 +294,36 @@ function commerce_fulfillment_configure_shipment_type($type = 'commerce_fulfillm
 
     field_create_instance($instance);
   }
+
+  $field_name = 'commerce_fulfillment_shipping';
+
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_fulfillment_shipment', $field_name, $type);
+  //creates the package shipping info field
+  if(empty($field)) {
+    $field = array(
+      'field_name' => 'commerce_fulfillment_shipping',
+      'type' => 'text',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'entity_types' => array('commerce_fulfillment_package', 'commerce_fulfillment_shipment'),
+      'translatable' => TRUE,
+    );
+
+    field_create_field($field);
+  }
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'commerce_fulfillment_shipment',
+      'bundle' => $type,
+      'label' => t('Shipping Info'),
+      'display' => array(),
+    );
+
+    field_create_instance($instance);
+  }
 }
 
 function commerce_fulfillment_action_info(){
@@ -296,6 +354,14 @@ function commerce_fulfillment_action_info(){
       'vbo_configurable' => TRUE,
       'triggers' => array('any'),
     ),
+    'commerce_fulfillment_shipping_label_action' => array(
+      'type' => 'entity',
+      'label' => t('Print Shipping Label'),
+      'behaviour' => array('views_property'),
+      'configurable' => false,
+      'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+    ),
   );
 }
 
@@ -321,6 +387,7 @@ function commerce_fulfillment_add_action(&$object, $context = array()){
     }
   }
   $package_wrapper->save();
+  dpm($package_wrapper->commerce_fulfillment_line_items->value());
 }
 
 function commerce_fulfillment_add_action_form($options){
@@ -419,7 +486,6 @@ function commerce_fulfillment_forms($form_id, $args){
   }
 
   return $forms;
-
 }
 
 /**

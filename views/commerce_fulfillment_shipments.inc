@@ -17,8 +17,8 @@ $handler->display->display_options['access']['type'] = 'none';
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
 $handler->display->display_options['exposed_form']['type'] = 'basic';
-$handler->display->display_options['pager']['type'] = 'some';
-$handler->display->display_options['pager']['options']['items_per_page'] = '5';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
 $handler->display->display_options['style_plugin'] = 'table_megarows';
 $handler->display->display_options['row_plugin'] = 'entity';
 /* Field: Bulk operations: Commerce Fulfillment Shipment */
@@ -114,9 +114,7 @@ $handler->display->display_options['fields']['status']['field'] = 'status';
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['id'] = 'commerce_fulfillment_packages';
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['table'] = 'field_data_commerce_fulfillment_packages';
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['field'] = 'commerce_fulfillment_packages';
-$handler->display->display_options['fields']['commerce_fulfillment_packages']['label'] = '';
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['element_type'] = '0';
-$handler->display->display_options['fields']['commerce_fulfillment_packages']['element_label_colon'] = FALSE;
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['element_wrapper_type'] = '0';
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['element_default_classes'] = FALSE;
 $handler->display->display_options['fields']['commerce_fulfillment_packages']['type'] = 'entityreference_entity_id';
@@ -129,6 +127,17 @@ $handler->display->display_options['fields']['commerce_fulfillment_packages']['f
 $handler->display->display_options['fields']['tracking_number']['id'] = 'tracking_number';
 $handler->display->display_options['fields']['tracking_number']['table'] = 'commerce_fulfillment_shipments';
 $handler->display->display_options['fields']['tracking_number']['field'] = 'tracking_number';
+/* Field: Field: Shipping Info */
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['id'] = 'commerce_fulfillment_shipping';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['table'] = 'field_data_commerce_fulfillment_shipping';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['field'] = 'commerce_fulfillment_shipping';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['label'] = '';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['element_type'] = '0';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['element_wrapper_type'] = '0';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['element_default_classes'] = FALSE;
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['delta_offset'] = '0';
+$handler->display->display_options['fields']['commerce_fulfillment_shipping']['field_api_classes'] = TRUE;
 /* Contextual filter: Commerce Fulfillment Shipment: Order_id */
 $handler->display->display_options['arguments']['order_id']['id'] = 'order_id';
 $handler->display->display_options['arguments']['order_id']['table'] = 'commerce_fulfillment_shipments';

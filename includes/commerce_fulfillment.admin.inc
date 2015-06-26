@@ -146,12 +146,12 @@ function commerce_fulfillment_package_content($order){
 
   $order_wrapper = entity_metadata_wrapper( 'commerce_order', $order);
   $order_id = $order_wrapper->order_id->value();
-  //outputs forms to create a package and to print the packing slip for the selected package
+
   $get_form = drupal_get_form('commerce_fulfillment_create_package_form', $order_id);
   $output = drupal_render($get_form);
+
   //@TODO - this has a lot of formatting, consider moving it out into a tpl in the future
   $output .= '<h2>' . t('Products in Order @order_id:', array('@order_id' => $order_id)) . '</h2>';
-
   $output .= views_embed_view('commerce_fulfillment_line_items', 'line_item_block', $order_id);
 
   $output .= '<h2>' . t('Packages:') . '</h2>';
@@ -224,7 +224,7 @@ function commerce_fulfillment_create_package_form_submit($form, &$form_state){
     'order_id' => $order_wrapper->order_id->value(),
     'box_type' => $package_type[$form_state['values']['commerce_fulfillment_package_type']],
     'commerce_fulfillment_line_items' => NULL,
-    'shipping_info'=> array(
+    'commerce_fulfillment_shipping'=> array(
       'first_name' => $profile_wrapper->commerce_customer_address->first_name->value(),
       'last_name' => $profile_wrapper->commerce_customer_address->last_name->value(),
       'company' => $profile_wrapper->commerce_customer_address->organisation_name->value(),
@@ -364,7 +364,7 @@ function commerce_fulfillment_shipment_content($order) {
   $order_id = $order->order_id;
 
   $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
-
+  dpm($shipments);
   $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
   $output.= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
   $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
@@ -376,11 +376,11 @@ function commerce_fulfillment_shipment_content($order) {
     $shipment_id = $shipment_wrapper->shipment_id->value();
     $output .= t('<h3>Shipment ' . $shipment_id . ':</h3>');
     $output .= t('<p>&emsp;<strong>Tracking Number: </strong>' . $shipment_wrapper->tracking_number->value() . '</p>');
-    $output .= t('<p>&emsp;<strong>Date Created: </strong>'
-      . date("Y M d", strtotime($shipment->dates['created'])) . '</p>');
-    $output .= t('<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
-      ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
-      ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>');
+//    $output .= t('<p>&emsp;<strong>Date Created: </strong>'
+//      . date("Y M d", strtotime($shipment->dates['created'])) . '</p>');
+//    $output .= t('<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
+//      ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
+//      ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>');
 
     $args = array($shipment_id);
     $get_form = (drupal_get_form('commerce_fulfillment_manipulate_shipment_form_' . $shipment_id, $args));
@@ -531,26 +531,33 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
   $order = commerce_order_load($order_id);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
   $profile = commerce_customer_profile_load($order_wrapper->commerce_customer_shipping->profile_id->value());
+  dpm($profile);
   $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
 
   $entity = entity_create('commerce_fulfillment_shipment', array(
     'order_id' => $order->order_id,
-    'status' => 'pending',
-    'dates' => array(
-      'created' => date('ymd'),
-    ),
-    'shipping_info' => array(
-      'firstName' => $profile_wrapper->commerce_customer_address->first_name->value(),
-      'lastName' => $profile_wrapper->commerce_customer_address->last_name->value(),
-      'company' => $profile_wrapper->commerce_customer_address->organisation_name->value(),
-      'address' => $profile_wrapper->commerce_customer_address->thoroughfare->value(),
-      'city' => $profile_wrapper->commerce_customer_address->locality->value(),
-      'state' => $profile_wrapper->commerce_customer_address->administrative_area->value(),
-      'zip' => $profile_wrapper->commerce_customer_address->postal_code->value(),
-      'country' => $profile_wrapper->commerce_customer_address->country->value(),
-    ),
+    'status' => 'Pending',
     'tracking_number' => $form_state['values']['commerce_fulfillment_tracking_number'],
   ));
 
   $entity->save('commerce_fulfillment_shipment', $entity);
+
+  //commerce_fulfillment_shipping will not save from the entity_create. So we create an Entity Metadata Wrapper to do the job.
+  $shipment_wrapper = entity_metadata_wrapper('commerce_fulfillment_shipment', $entity);
+  $shipping_array = array(
+    $profile_wrapper->commerce_customer_address->first_name->value(),
+    $profile_wrapper->commerce_customer_address->last_name->value(),
+    $profile_wrapper->commerce_customer_address->organisation_name->value(),
+    $profile_wrapper->commerce_customer_address->thoroughfare->value(),
+    $profile_wrapper->commerce_customer_address->locality->value(),
+    $profile_wrapper->commerce_customer_address->administrative_area->value(),
+    $profile_wrapper->commerce_customer_address->postal_code->value(),
+    $profile_wrapper->commerce_customer_address->country->value(),
+    array(
+      date('ymd'),
+    ),
+  );
+  dpm($shipping_array);
+  $shipment_wrapper->commerce_fulfillment_shipping->set($shipping_array);
+  $shipment_wrapper->save();
 }
