@@ -339,7 +339,7 @@ function commerce_fulfillment_theme() {
       'template' => 'templates/commerce_fulfillment--packing_slip',
     ),
     'shipping_label' => array(
-      'template' => 'templates/commerce_fulfillment--shipping-label'
+      'template' => 'templates/commerce_fulfillment--shipping_label'
     ),
   );
 }
