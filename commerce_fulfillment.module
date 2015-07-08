@@ -64,22 +64,24 @@ function commerce_fulfillment_menu() {
   );
 
   //Menu item for shipping label
-  $items['admin/commerce/orders/commerce_fulfillment/shipping_label/%'] = array(
+  $items['shipping_label/%'] = array(
     'title' => t('Shipping Label'),
-    'page callback' => 'commerce_fulfillment_shipping_label_content',
-    'page arguments' => array(5),
+    'page callback' => 'commerce_fulfillment_shipping_label_view',
+    'page arguments' => array(1),
     'access callback' => true,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'commerce_fulfillment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfillment') . '/includes',
   );
 
   //Menu item for packing slip
-  $items['admin/commerce/orders/commerce_fulfillment/packing_slip/%'] = array(
+  $items['packing_slip/%'] = array(
     'title' => t('Packing Slip'),
     'page callback' => 'commerce_fulfillment_packing_slip_view',
-    'page arguments' => array(5),
+    'page arguments' => array(1),
     'access callback' => true,
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'file' => 'commerce_fulfillment.admin.inc',
     'file path' => drupal_get_path('module', 'commerce_fulfillment') . '/includes',
@@ -324,6 +326,22 @@ function commerce_fulfillment_configure_shipment_type($type = 'commerce_fulfillm
 
     field_create_instance($instance);
   }
+}
+
+/**
+ * @return array
+ *
+ * Implements hook_theme()
+ */
+function commerce_fulfillment_theme() {
+  return array(
+    'packing_slip' => array(
+      'template' => 'templates/commerce_fulfillment--packing_slip',
+    ),
+    'shipping_label' => array(
+      'template' => 'templates/commerce_fulfillment--shipping-label'
+    ),
+  );
 }
 
 function commerce_fulfillment_action_info(){

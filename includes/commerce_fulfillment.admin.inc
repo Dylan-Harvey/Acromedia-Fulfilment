@@ -101,7 +101,7 @@ function commerce_fulfillment_admin_form_submit($form, &$form_state){
   }
 
   //appends global variable package_type
-  for($i = $form_state['num_boxtypes']; $i>=0; $i--) {
+  for($i = $form_state['num_boxtypes']; $i>0; $i--) {
     $package_type[] = $form_state['values'][$i-1];
   }
 
@@ -314,15 +314,26 @@ function commerce_fulfillment_packing_slip_view($package_id){
   else {
     $image_obj_url = NULL;
   }
+  $company = variable_get('commerce_fulfillment_company');
+  $address = variable_get('commerce_fulfillment_address');
+  $phone = variable_get('commerce_fulfillment_phone');
 
-  return theme("packing_slip", array(
-    'company' => variable_get('commerce_fulfillment_company'),
-    'address' => variable_get('commerce_fulfillment_address'),
-    'phone' => variable_get('commerce_fulfillment_phone'),
+  $page = commerce_fulfillment_page_prerequisite();
+
+  $output = theme('packing_slip', array(
+    'company' => $company,
+    'address' => $address,
+    'phone' => $phone,
     'image' => $image_obj_url,
     'products' => $products,
     'count' => $count,
+    'page' => $page,
   ));
+
+  drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  drupal_send_headers();
+  print $output;
+
 //  $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
 //  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
 //    . variable_get('commerce_fulfillment_company', NULL) . '</p>&emsp;'
@@ -360,11 +371,6 @@ function commerce_fulfillment_packing_slip_view($package_id){
 //  print $output;
 }
 
-function commerce_fulfillment_packing_slip_theme() {
-  return array('packing_slip' => array(
-    'template' => '/templates/page--commerce_fulfillment--packing_slip',
-  ));
-}
 /**
  * @param $order
  * @return string
@@ -459,7 +465,7 @@ function commerce_fulfillment_shipping_label_print_form_submit($form, &$form_sta
  * Prints Company name, address, phone # and logo from the administrator page.
  *
  */
-function commerce_fulfillment_shipping_label_content($shipment_id){
+function commerce_fulfillment_shipping_label_view($shipment_id){
   $shipment_arr = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id' => $shipment_id));
   $shipment = $shipment_arr[$shipment_id];
   $image = variable_get('commerce_fulfillment_logo', NULL);
@@ -475,23 +481,61 @@ function commerce_fulfillment_shipping_label_content($shipment_id){
     $image_obj_url = NULL;
   }
 
-  $output = t('<table border = "1px solid black" height = "350" width = "700"><tr><td height = "50%">
-    <strong> From: </Strong>' . variable_get('commerce_fulfillment_company', NULL) . '<br>&emsp;&emsp;&emsp;'
-    . variable_get('commerce_fulfillment_address', NULL)
-    . '<br>&emsp;&emsp;&emsp;' . variable_get('commerce_fulfillment_phone', NULL) . '</td>');
-  $output .= t('<td align = "center"><img src = "' . $image_obj_url .  '")></td></tr>');
-  $output .= t('<tr><td height = "50%"><strong>To: </strong>' . $shipment->shipping_info['firstName'] . ' '
-    . $shipment->shipping_info['lastName'] . '<br>'
-    . $shipment->shipping_info['address'] . '<br>' . $shipment->shipping_info['city'] . ', '
-    . $shipment->shipping_info['state'] . ', ' . $shipment->shipping_info['country'] . '<br>'
-    . $shipment->shipping_info['zip'] . '</td>');
-  $output .= t('<td width = "50%"><strong>Order ID: </strong>' . $shipment->order_id
-    . '<br><strong>Tracking Number: </strong>' . $shipment->tracking_number . '<br><strong>Shipping Method: </strong>'
-    . $shipment->method['method'] . '<br>' . '</tr></table>');
+  $company = variable_get('commerce_fulfillment_company');
+  $address = variable_get('commerce_fulfillment_address');
+  $phone = variable_get('commerce_fulfillment_phone');
 
+  $page = commerce_fulfillment_page_prerequisite();
+
+  $output = theme('shipping_label', array(
+    'company' => $company,
+    'address' => $address,
+    'phone' => $phone,
+    'image' => $image_obj_url,
+    'shipment' => $shipment,
+    'page' => $page,
+  ));
+
+  drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  drupal_send_headers();
   print $output;
+//  $output = t('<table border = "1px solid black" height = "350" width = "700"><tr><td height = "50%">
+//    <strong> From: </Strong>' . variable_get('commerce_fulfillment_company', NULL) . '<br>&emsp;&emsp;&emsp;'
+//    . variable_get('commerce_fulfillment_address', NULL)
+//    . '<br>&emsp;&emsp;&emsp;' . variable_get('commerce_fulfillment_phone', NULL) . '</td>');
+//  $output .= t('<td align = "center"><img src = "' . $image_obj_url .  '")></td></tr>');
+//  $output .= t('<tr><td height = "50%"><strong>To: </strong>' . $shipment->shipping_info['firstName'] . ' '
+//    . $shipment->shipping_info['lastName'] . '<br>'
+//    . $shipment->shipping_info['address'] . '<br>' . $shipment->shipping_info['city'] . ', '
+//    . $shipment->shipping_info['state'] . ', ' . $shipment->shipping_info['country'] . '<br>'
+//    . $shipment->shipping_info['zip'] . '</td>');
+//  $output .= t('<td width = "50%"><strong>Order ID: </strong>' . $shipment->order_id
+//    . '<br><strong>Tracking Number: </strong>' . $shipment->tracking_number . '<br><strong>Shipping Method: </strong>'
+//    . $shipment->method['method'] . '<br>' . '</tr></table>');
+//
+//  print $output;
 }
 
+/**
+ * Prepare the array for the template with common details
+ * @see more _print_var_generator() in print.pages.inc of the Print module
+ */
+function commerce_fulfillment_page_prerequisite(){
+  global $base_url, $language;
+  $page = array();
+  $page['language'] = $language->language;
+  $page['head'] = drupal_get_html_head();
+  $page['title'] = '';
+  $page['scripts'] = drupal_get_js();
+  $page['favicon'] = '';
+  // if there is a custom css file for this page
+  // drupal_add_css(drupal_get_path('module', 'mymodule') . '/css/mylogin.css');
+  $page['css'] = drupal_get_css();
+  $page['message'] = drupal_get_messages();
+  $page['footer_scripts'] = drupal_get_js('footer');
+
+  return $page;
+}
 /**
  * @param $form
  * @param $form_state
