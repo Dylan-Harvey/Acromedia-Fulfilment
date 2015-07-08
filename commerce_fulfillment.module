@@ -64,7 +64,7 @@ function commerce_fulfillment_menu() {
   );
 
   //Menu item for shipping label
-  $items['admin/commerce/orders/%/commerce_fulfillment/%/shipping_label'] = array(
+  $items['admin/commerce/orders/commerce_fulfillment/shipping_label/%'] = array(
     'title' => t('Shipping Label'),
     'page callback' => 'commerce_fulfillment_shipping_label_content',
     'page arguments' => array(5),
@@ -75,7 +75,7 @@ function commerce_fulfillment_menu() {
   );
 
   //Menu item for packing slip
-  $items['admin/commerce/orders/%/commerce_fulfillment/%/packing_slip'] = array(
+  $items['admin/commerce/orders/commerce_fulfillment/packing_slip/%'] = array(
     'title' => t('Packing Slip'),
     'page callback' => 'commerce_fulfillment_packing_slip_content',
     'page arguments' => array(5),
@@ -346,31 +346,22 @@ function commerce_fulfillment_action_info(){
       'triggers' => array('any'),
       'aggregate' => TRUE,
     ),
-    'commerce_fulfillment_packing_slip_action' => array(
-      'type' => 'entity',
-      'label' => t('Print Packing Slip'),
-      'behaviour' => array('views_property'),
-      'configurable' => false,
-      'vbo_configurable' => TRUE,
-      'triggers' => array('any'),
-    ),
-    'commerce_fulfillment_shipping_label_action' => array(
-      'type' => 'entity',
-      'label' => t('Print Shipping Label'),
-      'behaviour' => array('views_property'),
-      'configurable' => false,
-      'vbo_configurable' => TRUE,
-      'triggers' => array('any'),
-    ),
   );
 }
 
+/**
+ * @param $object
+ * @param array $context
+ *
+ * Logic behind adding a product to a package.
+ */
 function commerce_fulfillment_add_action(&$object, $context = array()){
   $package_index = $context['package'];
   $order_id = $context ['order_id'];
   $package = commerce_fulfillment_get_array($order_id, $package_index, 'package_in_order');
   $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package));
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package]);
+
   foreach ($object as $line_item) {
     $count = 0;
 
@@ -387,12 +378,19 @@ function commerce_fulfillment_add_action(&$object, $context = array()){
     }
   }
   $package_wrapper->save();
-  dpm($package_wrapper->commerce_fulfillment_line_items->value());
 }
 
+/**
+ * @param $options
+ * @return array
+ *
+ * Implements hook_form
+ * Creates the form for adding products to packages
+ *
+ */
 function commerce_fulfillment_add_action_form($options){
   $order_id = $options['view']->args[0];
-  dpm($options);
+
   $form = array();
 
   $form['commerce_fulfillment_package'] = array(
@@ -408,17 +406,34 @@ function commerce_fulfillment_add_action_form($options){
   return $form;
 }
 
+/**
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ *
+ * Implements hook submit
+ *
+ */
 function commerce_fulfillment_add_action_submit($form, &$form_state){
   $output['package'] = $form_state['values']['commerce_fulfillment_package'];
   $output['order_id'] = $form_state['values']['commerce_fulfillment_order'];
   return $output;
 }
 
+/**
+ * @param $object
+ * @param array $context
+ *
+ * Logic behind removing a product from a package
+ *
+ */
 function commerce_fulfillment_remove_action(&$object, $context = array()){
   $max = 0;
   $index_array = array();
+
   $package_id = $context['package_id'];
   $package_entity = entity_load('commerce_fulfillment_package', false, array('package_id' => $package_id));
+
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_entity[$package_id]);
 
   foreach ($package_wrapper->commerce_fulfillment_line_items->value() as $index) {
@@ -439,20 +454,41 @@ function commerce_fulfillment_remove_action(&$object, $context = array()){
 
 }
 
+/**
+ * @param $options
+ * @return array
+ *
+ * Implements hook_form
+ * Creates the form for removing products from a package
+ *
+ */
 function commerce_fulfillment_remove_action_form($options){
+  $order_id = $options['view']->args[0];
 
-  $package_id = $options['view']->old_view[0]->result[0]->package_id;
   $form = array();
 
   $form['commerce_fulfillment_package_id'] = array(
+    '#type' => 'select',
+    '#title' => t('Select a Package:'),
+    '#options' => commerce_fulfillment_get_array($order_id, 'false', 'package_in_order'),
+    '#required' => true,
+  );
+  $form['commerce_fulfillment_order_id'] = array(
     '#type' => 'hidden',
-    '#value' => $package_id
+    '#value' => $order_id
   );
   return $form;
 }
 
+/**
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ *
+ * Implements hook_submit
+ */
 function commerce_fulfillment_remove_action_submit($form, &$form_state){
-  $output['package_id'] = $form_state['values']['commerce_fulfillment_package_id'];
+  $output['package_id'] = commerce_fulfillment_get_array($form_state['values']['commerce_fulfillment_order_id'], $form_state['values']['commerce_fulfillment_package_id'], 'package_in_order');
   return $output;
 }
 

@@ -364,7 +364,7 @@ function commerce_fulfillment_shipment_content($order) {
   $order_id = $order->order_id;
 
   $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
-  dpm($shipments);
+
   $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
   $output.= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
   $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
@@ -376,12 +376,6 @@ function commerce_fulfillment_shipment_content($order) {
     $shipment_id = $shipment_wrapper->shipment_id->value();
     $output .= t('<h3>Shipment ' . $shipment_id . ':</h3>');
     $output .= t('<p>&emsp;<strong>Tracking Number: </strong>' . $shipment_wrapper->tracking_number->value() . '</p>');
-//    $output .= t('<p>&emsp;<strong>Date Created: </strong>'
-//      . date("Y M d", strtotime($shipment->dates['created'])) . '</p>');
-//    $output .= t('<p><strong>&emsp;Address: </strong>' . $shipment->shipping_info['address'] .
-//      ', ' . $shipment->shipping_info['city'] . ' ' . $shipment->shipping_info['state'] .
-//      ', ' . $shipment->shipping_info['country'] . ' ' . $shipment->shipping_info['zip'] . '</p>');
-
     $args = array($shipment_id);
     $get_form = (drupal_get_form('commerce_fulfillment_manipulate_shipment_form_' . $shipment_id, $args));
     $output .= drupal_render($get_form);
@@ -531,7 +525,7 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
   $order = commerce_order_load($order_id);
   $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
   $profile = commerce_customer_profile_load($order_wrapper->commerce_customer_shipping->profile_id->value());
-  dpm($profile);
+
   $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
 
   $entity = entity_create('commerce_fulfillment_shipment', array(
@@ -557,7 +551,7 @@ function commerce_fulfillment_create_shipment_form_submit(&$form, &$form_state){
       date('ymd'),
     ),
   );
-  dpm($shipping_array);
+
   $shipment_wrapper->commerce_fulfillment_shipping->set($shipping_array);
   $shipment_wrapper->save();
 }

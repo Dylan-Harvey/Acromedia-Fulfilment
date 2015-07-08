@@ -73,20 +73,13 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
 ),
 ),
 'action::views_bulk_operations_argument_selector_action' => array(
-'selected' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
+'selected' => 1,
+'skip_confirmation' => 1,
+'override_label' => 1,
+'label' => 'Print Shipping Label',
 'settings' => array(
-'url' => '',
+'url' => 'admin/commerce/orders/commerce_fulfillment/shipping_label',
 ),
-),
-'action::commerce_fulfillment_packing_slip_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
 ),
 'action::commerce_fulfillment_remove_action' => array(
 'selected' => 0,
