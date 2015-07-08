@@ -292,7 +292,7 @@ function commerce_fulfillment_packing_slip_form_submit($form, &$form_state){
  *
  */
 //@TODO this would also probably be a good candidate for a tpl
-function commerce_fulfillment_packing_slip_content($package_id){
+function commerce_fulfillment_packing_slip_view($package_id){
   $package_selected = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $package_id));
   $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_selected[$package_id]);
   $order_id = $package_selected[$package_id]->order_id;
@@ -315,43 +315,56 @@ function commerce_fulfillment_packing_slip_content($package_id){
     $image_obj_url = NULL;
   }
 
-  $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
-  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
-    . variable_get('commerce_fulfillment_company', NULL) . '</p>&emsp;'
-    . variable_get('commerce_fulfillment_address', NULL) . '<br>&emsp;'
-    . variable_get('commerce_fulfillment_phone', NULL)
-    . '</td></tr>');
-
-  $output .= t('<tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
-        <table cellpadding = "15" width = "700" >');
-  $output .= t('<th align = "left"> Product Code:</th><th align = "left"> Quantity</th>
-    <th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>');
-
-  foreach($products as $product){
-
-    $product_wrapper = entity_metadata_wrapper('commerce_line_item', $product);
-    $prices[0] = $product_wrapper->commerce_unit_price->amount->value();
-    $prices[1] = $product_wrapper->commerce_total->amount->value();
-
-    $length = strlen($prices[0]);
-    $prices[0] = substr_replace($prices[0], '.', $length - 2, 0);
-    $length = strlen($prices[1]);
-    $prices[1] = substr_replace($prices[1], '.', $length - 2, 0);
-
-    //@TODO possibly break this up into a few $output .= lines, makes it a bit easier to read and the speed is the same
-    $output .= t('<tr><td>' . $product->line_item_label . '</td><td>' . $product->quantity .'</td><td>' .
-      $prices[0] . ' ' . $product_wrapper->commerce_unit_price->currency_code->value() . '</td><td>' . $prices[1] . ' '
-      . $product_wrapper->commerce_total->currency_code->value() . '</td></tr>');
-  }
-
-  $output .= t('</table></td></tr>');
-  $output .= t('<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_wrapper->package_id->value()
-    . '<br><strong>Package:</strong> 1 of ' . $count . '</td>');
-  $output.= t('</tr></table>');
-
-  print $output;
+  return theme("packing_slip", array(
+    'company' => variable_get('commerce_fulfillment_company'),
+    'address' => variable_get('commerce_fulfillment_address'),
+    'phone' => variable_get('commerce_fulfillment_phone'),
+    'image' => $image_obj_url,
+    'products' => $products,
+    'count' => $count,
+  ));
+//  $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
+//  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
+//    . variable_get('commerce_fulfillment_company', NULL) . '</p>&emsp;'
+//    . variable_get('commerce_fulfillment_address', NULL) . '<br>&emsp;'
+//    . variable_get('commerce_fulfillment_phone', NULL)
+//    . '</td></tr>');
+//
+//  $output .= t('<tr><td style = vertical-align:top align = "top" height = "500" colspan ="2">
+//        <table cellpadding = "15" width = "700" >');
+//  $output .= t('<th align = "left"> Product Code:</th><th align = "left"> Quantity</th>
+//    <th align = "left"> Unit Price:</th><th align = "left"> Total Price:</th>');
+//
+//  foreach($products as $product){
+//
+//    $product_wrapper = entity_metadata_wrapper('commerce_line_item', $product);
+//    $prices[0] = $product_wrapper->commerce_unit_price->amount->value();
+//    $prices[1] = $product_wrapper->commerce_total->amount->value();
+//
+//    $length = strlen($prices[0]);
+//    $prices[0] = substr_replace($prices[0], '.', $length - 2, 0);
+//    $length = strlen($prices[1]);
+//    $prices[1] = substr_replace($prices[1], '.', $length - 2, 0);
+//
+//    //@TODO possibly break this up into a few $output .= lines, makes it a bit easier to read and the speed is the same
+//    $output .= t('<tr><td>' . $product->line_item_label . '</td><td>' . $product->quantity .'</td><td>' .
+//      $prices[0] . ' ' . $product_wrapper->commerce_unit_price->currency_code->value() . '</td><td>' . $prices[1] . ' '
+//      . $product_wrapper->commerce_total->currency_code->value() . '</td></tr>');
+//  }
+//
+//  $output .= t('</table></td></tr>');
+//  $output .= t('<tr><td colspan = "2"><strong>Package ID: </strong>' . $package_wrapper->package_id->value()
+//    . '<br><strong>Package:</strong> 1 of ' . $count . '</td>');
+//  $output.= t('</tr></table>');
+//
+//  print $output;
 }
 
+function commerce_fulfillment_packing_slip_theme() {
+  return array('packing_slip' => array(
+    'template' => '/templates/page--commerce_fulfillment--packing_slip',
+  ));
+}
 /**
  * @param $order
  * @return string
