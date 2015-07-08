@@ -233,7 +233,7 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
 'override_label' => 1,
 'label' => 'Print Packing Slip',
 'settings' => array(
-'url' => 'admin/commerce/orders/commerce_fulfillment/packing_slip',
+'url' => 'packing_slip',
 ),
 ),
 'action::commerce_fulfillment_remove_action' => array(
