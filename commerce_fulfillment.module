@@ -344,6 +344,12 @@ function commerce_fulfillment_theme() {
   );
 }
 
+/**
+ * @return array
+ *
+ * Implements hook_action_info()
+ * Creates custom Views Bulk Operations
+ */
 function commerce_fulfillment_action_info(){
   return array(
     'commerce_fulfillment_add_action' => array(

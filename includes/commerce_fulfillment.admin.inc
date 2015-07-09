@@ -285,55 +285,95 @@ function commerce_fulfillment_packing_slip_form_submit($form, &$form_state){
   $form_state['redirect'] = 'admin/commerce/orders/' . $form_state['values']['commerce_fulfillment_order_id'] .'/commerce_fulfillment/' . $argument . '/packing_slip';
 }
 
+
+/**
+ * @param $package_id
+ * @return string|void
+ *
+ * Tests to make sure user only selected one package.
+ * If user selected more than one package redirects the user back to the package page.
+ */
+function commerce_fulfillment_packing_slip_view($package_id){
+  if (strstr($package_id, ',')) {
+    drupal_set_message(t('Please select only one Package'), 'error');
+    $package_id = strtok($package_id, ',');
+    $package = entity_load('commerce_fulfillment_package', FALSE, array('package_id'=>$package_id));
+    $package = $package[$package_id];
+    $order_id = $package->order_id;
+    drupal_goto('admin/commerce/orders/'.$order_id.'/commerce_fulfillment/orders');
+  }
+  else {
+    commerce_fulfillment_packing_slip_content($package_id);
+  }
+}
+
+/**
+ * @param $shipment_id
+ * @return string|void
+ *
+ * Tests to make sure user only selected one shipment.
+ * If user selected more than one shipment redirects the user back to the shipments page.
+ */
+function commerce_fulfillment_shipping_label_view($shipment_id){
+  if (strstr($shipment_id, ',')) {
+    drupal_set_message(t('Please select only one Shipment'), 'error');
+    $shipment_id = strtok($shipment_id, ',');
+    $shipment = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id'=>$shipment_id));
+    $shipment = $shipment[$shipment_id];
+    $order_id = $shipment->order_id;
+    drupal_goto('admin/commerce/orders/'.$order_id.'/commerce_fulfillment/shipments');
+  }
+  else {
+    commerce_fulfillment_shipping_label_content($shipment_id);
+  }
+}
+
 /**
  * @param $package_id
  *
  * The page to show and print the packing slip
  *
  */
-//@TODO this would also probably be a good candidate for a tpl
-function commerce_fulfillment_packing_slip_view($package_id){
-  $package_selected = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $package_id));
-  $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_selected[$package_id]);
-  $order_id = $package_selected[$package_id]->order_id;
-  $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
-  $products = $package_wrapper->commerce_fulfillment_line_items->value();
+function commerce_fulfillment_packing_slip_content($package_id){
+    $package_selected = entity_load('commerce_fulfillment_package', FALSE, array('package_id' => $package_id));
+    $package_wrapper = entity_metadata_wrapper('commerce_fulfillment_package', $package_selected[$package_id]);
+    $order_id = $package_selected[$package_id]->order_id;
+    $packages = entity_load('commerce_fulfillment_package', FALSE, array('order_id' => $order_id));
+    $products = $package_wrapper->commerce_fulfillment_line_items->value();
 
-  $count = count($packages);
+    $count = count($packages);
 
-  $image = variable_get('commerce_fulfillment_logo', NULL);
+    $image = variable_get('commerce_fulfillment_logo', NULL);
 
-  if($image !== NULL) {
-    $image_obj = file_load($image);
+    if ($image !== NULL) {
+      $image_obj = file_load($image);
 
-    if (isset($image_obj->uri)) {
-      $image_obj_url = file_create_url($image_obj->uri);
+      if (isset($image_obj->uri)) {
+        $image_obj_url = file_create_url($image_obj->uri);
+      }
+
+    } else {
+      $image_obj_url = NULL;
     }
+    $company = variable_get('commerce_fulfillment_company');
+    $address = variable_get('commerce_fulfillment_address');
+    $phone = variable_get('commerce_fulfillment_phone');
 
-  }
-  else {
-    $image_obj_url = NULL;
-  }
-  $company = variable_get('commerce_fulfillment_company');
-  $address = variable_get('commerce_fulfillment_address');
-  $phone = variable_get('commerce_fulfillment_phone');
+    $page = commerce_fulfillment_page_prerequisite();
 
-  $page = commerce_fulfillment_page_prerequisite();
+    $output = theme('packing_slip', array(
+      'company' => $company,
+      'address' => $address,
+      'phone' => $phone,
+      'image' => $image_obj_url,
+      'products' => $products,
+      'count' => $count,
+      'page' => $page,
+    ));
 
-  $output = theme('packing_slip', array(
-    'company' => $company,
-    'address' => $address,
-    'phone' => $phone,
-    'image' => $image_obj_url,
-    'products' => $products,
-    'count' => $count,
-    'page' => $page,
-  ));
-
-  drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
-  drupal_send_headers();
-  print $output;
-
+    drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+    drupal_send_headers();
+    print $output;
 //  $output = t('<table width = "700" border = "1"><tr><td width = "20%"><img src = "'. $image_obj_url .'"></td>');
 //  $output .= t('<td width = "80%"><p></p><strong>Company Info.: <br></strong>&emsp;'
 //    . variable_get('commerce_fulfillment_company', NULL) . '</p>&emsp;'
@@ -465,7 +505,7 @@ function commerce_fulfillment_shipping_label_print_form_submit($form, &$form_sta
  * Prints Company name, address, phone # and logo from the administrator page.
  *
  */
-function commerce_fulfillment_shipping_label_view($shipment_id){
+function commerce_fulfillment_shipping_label_content($shipment_id){
   $shipment_arr = entity_load('commerce_fulfillment_shipment', FALSE, array('shipment_id' => $shipment_id));
   $shipment = $shipment_arr[$shipment_id];
   $image = variable_get('commerce_fulfillment_logo', NULL);
