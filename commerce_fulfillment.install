@@ -1,53 +1,15 @@
 <?php
-/***********************************************************************************
- * This file is part of Commerce Fulfilment. A drupal module used to fulfil         *
- * orders placed in the Drupal Commerce module.                                    *
- *                                                                                 *
- * Authors: Dylan Harvey, Evan Schisler, Levi Weir, Parker Groenewoud              *
- *                                                                                 *
- * Project for COSC224 - Projects in Computer Science at Okanagan College.         *
- * Sponsored by Acro Media                                                          *
- *                                                                                 *
- *                                                                                 *
- * Version: 1.0 - 12/03/15 - (Code before header)                                  *
- *          1.1 - 26/03/15 - (Code after header)                                   *
- *          1.2 - 08/04/15 - (Added additional fields to the shipment entity.)     *
- * Originally from: http://choosealicense.com/licenses/mit/                       *
- * The MIT License (MIT)                                                           *
- *                                                                                 *
- *                                                                                 *
- *                                                                                 *
- * Permission is hereby granted, free of charge, to any person obtaining a copy    *
- * of this software and associated documentation files (the "Software"), to deal   *
- * in the Software without restriction, including without limitation the rights    *
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell       *
- * copies of the Software, and to permit persons to whom the Software is           *
- * furnished to do so, subject to the following conditions:                        *
- *                                                                                 *
- * The above copyright notice and this permission notice shall be included in all  *
- * copies or substantial portions of the Software.                                 *
- *                                                                                 *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      *
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,        *
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE     *
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER          *
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,   *
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE   *
- * SOFTWARE.                                                                       *
- **********************************************************************************/
-
 /**
  * @return array
  * implement hook_schema()
  * creates the entity base table in the database
  *
  */
-function commerce_fulfilment_schema() {
+function commerce_fulfillment_schema() {
+
   $schema = array();
 
-  //@todo - not sure this comment is very helpful, it is pretty clear this is a package entity
-  //package entity
-  $schema['commerce_fulfilment_packages'] = array(
+  $schema['commerce_fulfillment_packages'] = array(
     'description' => 'The base table for the package entity',
     'fields' => array(
       'package_id' => array(
@@ -57,30 +19,20 @@ function commerce_fulfilment_schema() {
         'not null' => TRUE,
       ),
       'order_id' => array(
-        'type' => 'blob',
+        'type' => 'varchar',
+        'length' => '255',
         'not null'=> TRUE,
-      ),
-      'line_items' => array (
-        'type' => 'blob',
-        'serialize' => TRUE,
-        'not null' => FALSE,
       ),
       'box_type' => array(
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
       ),
-      'shipping_info' => array(
-        'type' => 'blob',
-        'serialize'=> TRUE,
-        'not null' => TRUE,
-      ),
     ),
     'primary key' => array('package_id'),
   );
 
-  //shipment entity
-  $schema['commerce_fulfilment_shipments'] = array(
+  $schema['commerce_fulfillment_shipments'] = array(
     'description' => 'The base table for the Shipment entity',
     'fields' => array(
       'shipment_id' => array(
@@ -89,36 +41,21 @@ function commerce_fulfilment_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'order_num' => array(
-        'type' => 'blob',
+      'order_id' => array(
+        'type' => 'varchar',
+        'length' => '255',
         'not null'=> TRUE,
       ),
       'status' => array(
         'description' => 'Status of the shipment("Pending" or "Completed")',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => '255',
         'not null' => TRUE,
-      ),
-      'package_num' => array(
-        'description' => 'An array of the packages in the shipment.',
-        'type' => 'blob',
-        'serialize' => TRUE,
-        'not null' => FALSE,
-      ),
-      'dates' => array (
-        'type' => 'blob',
-        'serialize' => TRUE,
-        'not null' => FALSE,
-      ),
-      'method' => array (
-        'type' => 'blob',
-        'serialize' => TRUE,
-        'not null' => FALSE,
       ),
       'tracking_number' => array(
         'description' => 'Tracking number for the shipments',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => '255',
         'not null' => FALSE,
       ),
     ),
@@ -126,4 +63,20 @@ function commerce_fulfilment_schema() {
   );
 
   return $schema;
+
+}
+
+/**
+ * implements hook hook_uninstall
+ * clears global variables
+ *
+ */
+function commerce_fulfillment_uninstall(){
+  variable_del('commerce_fulfillment_package_type');
+  variable_del('commerce_fulfillment_company');
+  variable_del('commerce_fulfillment_address');
+  variable_del('commerce_fulfillment_phone');
+  variable_del('commerce_fulfillment_boxtype');
+  variable_del('commerce_fulfillment_logo');
+  drupal_flush_all_caches();
 }
