@@ -102,7 +102,10 @@ function commerce_fulfillment_admin_form_submit($form, &$form_state){
 
   //appends global variable package_type
   for($i = $form_state['num_boxtypes']; $i>0; $i--) {
-    $package_type[] = $form_state['values'][$i-1];
+
+    if ($form_state['values'][$i - 1] !== '') {
+      $package_type[] = $form_state['values'][$i - 1];
+    }
   }
 
   variable_set('commerce_fulfillment_package_type', $package_type);
@@ -422,13 +425,12 @@ function commerce_fulfillment_shipment_content($order) {
 
   $order_id = $order->order_id;
 
-  $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
-  dpm($shipments);
-
   $get_form = drupal_get_form('commerce_fulfillment_create_shipment_form', $order_id);
   $output = drupal_render($get_form);
+
   $output .= '<h2>' . t('Packages:') . '</h2>';
   $output .= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
+
   $output .= '<h2>' . t('Shipments:') . '</h2>';
   $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
 
