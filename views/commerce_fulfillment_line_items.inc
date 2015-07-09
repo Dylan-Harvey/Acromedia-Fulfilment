@@ -226,11 +226,17 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_setti
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-'action::commerce_fulfillment_add_action' => array(
+'action::commerce_fulfillment_add_package_action' => array(
+'selected' => 0,
+'skip_confirmation' => 0,
+'override_label' => 0,
+'label' => '',
+),
+'action::commerce_fulfillment_add_product_action' => array(
 'selected' => 1,
 'skip_confirmation' => 1,
-'override_label' => 1,
-'label' => 'Add to Package',
+'override_label' => 0,
+'label' => '',
 ),
 'action::views_bulk_operations_delete_item' => array(
 'selected' => 0,
@@ -275,25 +281,17 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_opera
 'url' => '',
 ),
 ),
-'action::commerce_fulfillment_packing_slip_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::commerce_fulfillment_shipping_label_action' => array(
-'selected' => 0,
-'postpone_processing' => 0,
-'skip_confirmation' => 0,
-'override_label' => 0,
-'label' => '',
-),
-'action::commerce_fulfillment_remove_action' => array(
+'action::commerce_fulfillment_remove_product_action' => array(
 'selected' => 1,
 'skip_confirmation' => 1,
-'override_label' => 1,
-'label' => 'Remove from Package',
+'override_label' => 0,
+'label' => '',
+),
+'action::commerce_fulfillment_remove_package_action' => array(
+'selected' => 0,
+'skip_confirmation' => 0,
+'override_label' => 0,
+'label' => '',
 ),
 'action::system_send_email_action' => array(
 'selected' => 0,

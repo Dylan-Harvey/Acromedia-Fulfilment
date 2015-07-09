@@ -423,29 +423,14 @@ function commerce_fulfillment_shipment_content($order) {
   $order_id = $order->order_id;
 
   $shipments = entity_load('commerce_fulfillment_shipment', FALSE, array('order_id'=>$order_id));
+  dpm($shipments);
 
-  $output = t('<table border = "0"><tr><td style = vertical-align:top><h2>Created Packages for This Order:</h2>');
-  $output.= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
-  $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
-
-  $output .= t('</td><td style = vertical-align:top><h2>Created Shipments for This Order:</h2>');
-
-  foreach ($shipments as $shipment) {
-    $shipment_wrapper = entity_metadata_wrapper('commerce_fulfillment_shipment', $shipment);
-    $shipment_id = $shipment_wrapper->shipment_id->value();
-    $output .= t('<h3>Shipment ' . $shipment_id . ':</h3>');
-    $output .= t('<p>&emsp;<strong>Tracking Number: </strong>' . $shipment_wrapper->tracking_number->value() . '</p>');
-    $args = array($shipment_id);
-    $get_form = (drupal_get_form('commerce_fulfillment_manipulate_shipment_form_' . $shipment_id, $args));
-    $output .= drupal_render($get_form);
-  }
-
-  $output .= t('</td></tr><tr><td>');
   $get_form = drupal_get_form('commerce_fulfillment_create_shipment_form', $order_id);
-  $output .= drupal_render($get_form) . '</td>';
-
-  $get_form = drupal_get_form('commerce_fulfillment_shipping_label_print_form', $order_id);
-  $output .= t('<td>' . drupal_render($get_form) . '</td></tr></table>');
+  $output = drupal_render($get_form);
+  $output .= '<h2>' . t('Packages:') . '</h2>';
+  $output .= views_embed_view('commerce_fulfillment_packages', 'package_shipment_block', $order_id);
+  $output .= '<h2>' . t('Shipments:') . '</h2>';
+  $output .= views_embed_view('commerce_fulfillment_shipments', 'default', $order_id);
 
   return $output;
 }
